@@ -1,0 +1,22 @@
+{
+    "modListVersion": 2,
+    "modList": [{
+        "modid": "${modId}",
+        "name": "${modName}",
+        "description": "${modDescription}",
+        "version": "${modVersion}",
+        "mcversion": "${minecraftVersion}",
+        "url": "${modDisplayUrl}",
+        "issueTrackerURL": "${modIssueTrackerUrl}",
+        "updateUrl": "",
+        "authorList": ["${modAuthors}"],
+        "credits": "${modCredits}",
+        "logoFile": "",
+        "screenshots": [],
+        "parent": "",
+        "requiredMods": [],
+        "dependencies": [],
+        "dependants": [],
+        "useDependencyInformation": false
+    }]
+}

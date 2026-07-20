@@ -1,5 +1,12 @@
 pluginManagement {
     repositories {
+        maven("https://nexus.gtnewhorizons.com/repository/public/") {
+            name = "GTNH Maven"
+            mavenContent {
+                includeGroup("com.gtnewhorizons")
+                includeGroupByRegex("com\\.gtnewhorizons\\..+")
+            }
+        }
         maven("https://maven.fabricmc.net/") {
             name = "Fabric"
         }
@@ -21,6 +28,9 @@ fun includeMc(minecraftVersion: String, kind: String) {
     include(projectName)
     project(":$projectName").projectDir = file("$minecraftVersion/$kind")
 }
+
+/// 1.7.10 ///
+includeMc("1.7.10", "forge")
 
 /// 1.18.2 ///
 includeMc("1.18.2", "common")
