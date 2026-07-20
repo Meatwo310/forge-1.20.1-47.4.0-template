@@ -195,7 +195,7 @@ subprojects {
 
     plugins.withType<JavaLibraryPlugin> {
         dependencies {
-            add("api", libs.jspecify)
+            add("compileOnlyApi", libs.jspecify)
         }
     }
 
