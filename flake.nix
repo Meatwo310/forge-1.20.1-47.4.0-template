@@ -1,9 +1,8 @@
 {
-  description = "Development environment for custom-mdk";
-
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-  outputs = { nixpkgs, ... }:
+  outputs =
+    { nixpkgs, ... }:
     let
       supportedSystems = [
         "aarch64-linux"
@@ -15,18 +14,21 @@
       devShells = forAllSystems (
         system:
         let
-          pkgs = import nixpkgs { inherit system; };
+          pkgs = nixpkgs.legacyPackages.${system};
           jdk = pkgs.jdk25;
         in
         {
           default = pkgs.mkShell {
-            packages = [ jdk ];
+            packages = with pkgs; [
+              actionlint
+              editorconfig-checker
+              jdk
+              shellcheck
+            ];
             JAVA_HOME = "${jdk}/lib/openjdk";
-            JAVA_TOOL_OPTIONS =
-              "-Dorg.gradle.java.installations.auto-download=true "
-              + "-Dorg.gradle.project.org.gradle.java.installations.auto-download=true";
           };
         }
       );
+      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
     };
 }
