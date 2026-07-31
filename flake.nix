@@ -5,6 +5,7 @@
     { nixpkgs, ... }:
     let
       supportedSystems = [
+        "aarch64-darwin"
         "aarch64-linux"
         "x86_64-linux"
       ];
@@ -25,7 +26,7 @@
               jdk
               shellcheck
             ];
-            JAVA_HOME = "${jdk}/lib/openjdk";
+            JAVA_HOME = jdk.home;
           };
         }
       );
