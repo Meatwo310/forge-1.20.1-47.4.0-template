@@ -51,6 +51,10 @@ java.toolchain {
     vendor = JvmVendorSpec.JETBRAINS
 }
 
+java {
+    withSourcesJar()
+}
+
 configurations {
     val localRuntime = create("localRuntime")
     runtimeClasspath.get().extendsFrom(localRuntime)
@@ -136,6 +140,10 @@ val generateModMetadata = tasks.register<ProcessResources>("generateModMetadata"
 
 sourceSets.main.get().resources.srcDir(generateModMetadata)
 neoForge.ideSyncTask(generateModMetadata)
+
+tasks.named("sourcesJar") {
+    dependsOn(generateModMetadata)
+}
 
 tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
