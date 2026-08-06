@@ -73,7 +73,7 @@ Before opening or importing the project in IntelliJ IDEA or Gradle, trim `settin
    [Receiving Upstream Updates](#receiving-upstream-updates) before regular development.
 3. Edit `settings.gradle.kts` and comment out unused `include(...)` lines to reduce Gradle configuration time and cache usage.
 4. Edit `gradle.properties` for your mod id, name, group, license, authors, URLs, and Fabric entry points, and edit `version.txt` for your mod version.
-5. Rename ALL Java package names (including those in the shared configuration system) to avoid conflicts with other mods. Update `Constants`, entry points, mixin config names, and language assets from `examplemod` to your mod id.
+5. Rename ALL Java package names (including those in the shared configuration system) to avoid conflicts with other mods. Update `Constants`, entry points, mixin config names, refmap names, and language assets from `examplemod` to your mod id.
 6. Create a root `README.md` and `LICENSE` for your mod. Keep `docs/*.md` unchanged if you want future template updates to merge cleanly.
 
 ## Generated Metadata
