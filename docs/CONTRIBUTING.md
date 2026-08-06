@@ -29,6 +29,10 @@ Commits should follow [Conventional Commits](https://www.conventionalcommits.org
 type(scope): description
 ```
 
+Pull request titles should use the same format as commit messages. When a pull
+request is squash-merged, its title becomes the resulting commit message, so
+the title must be a valid commit message on its own.
+
 Use the smallest scope that describes the affected area.
 
 ### Scope Rules
