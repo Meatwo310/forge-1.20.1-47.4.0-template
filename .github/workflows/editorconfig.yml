@@ -23,45 +23,5 @@ jobs:
         with:
           version: v3.8.0
 
-      - name: Check changed files
-        env:
-          BEFORE_SHA: ${{ github.event.before }}
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-          EVENT_NAME: ${{ github.event_name }}
-          HEAD_SHA: ${{ github.sha }}
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          case "$EVENT_NAME" in
-            pull_request)
-              DIFF_RANGE="$PR_BASE_SHA...$HEAD_SHA"
-              ;;
-            push)
-              if [[ "$BEFORE_SHA" =~ ^0+$ ]]; then
-                BASE_SHA=$(git merge-base "origin/$DEFAULT_BRANCH" "$HEAD_SHA")
-                DIFF_RANGE="$BASE_SHA...$HEAD_SHA"
-              else
-                DIFF_RANGE="$BEFORE_SHA..$HEAD_SHA"
-              fi
-              ;;
-            workflow_dispatch)
-              BASE_SHA=$(git rev-parse "$HEAD_SHA^" 2>/dev/null || git hash-object -t tree /dev/null)
-              DIFF_RANGE="$BASE_SHA..$HEAD_SHA"
-              ;;
-            *)
-              echo "::error::Unsupported event: $EVENT_NAME"
-              exit 1
-              ;;
-          esac
-
-          mapfile -d '' FILES < <(git diff --name-only --diff-filter=ACMR -z "$DIFF_RANGE")
-          if (( ${#FILES[@]} == 0 )); then
-            echo "No changed files to check."
-            exit 0
-          fi
-
-          printf 'Checking %d changed file(s):\n' "${#FILES[@]}"
-          printf '  %q\n' "${FILES[@]}"
-          editorconfig-checker -format github-actions -- "${FILES[@]}"
+      - name: Check repository
+        run: editorconfig-checker -format github-actions

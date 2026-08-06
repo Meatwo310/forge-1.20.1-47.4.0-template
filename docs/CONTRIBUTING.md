@@ -9,7 +9,17 @@ If you are working in `Meatwo310/custom-mdk` itself, follow
 Ensure every added or modified file follows the repository-root
 [`.editorconfig`](../.editorconfig). Enable EditorConfig support in your editor
 and resolve any formatting violations before submitting a change. The
-EditorConfig workflow checks changed files independently from the build.
+EditorConfig workflow checks all tracked files independently from the build.
+
+Run the same check locally before submitting a change. If Nix is installed,
+you can use the development shell provided by this repository:
+
+```sh
+nix develop -c editorconfig-checker -format github-actions
+```
+
+If you installed `editorconfig-checker` by another method, run the same command
+directly without `nix develop`.
 
 ## Commit Message Convention
 
