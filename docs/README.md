@@ -85,6 +85,7 @@ Each `<minecraft>/fabric/src/main/templates/fabric.mod.json` file is a small ove
 ## Requirements
 
 - JDK 25 is recommended for configuring Gradle and matches the GitHub Actions build environment.
+- On Linux and Apple silicon macOS, `nix develop` provides JDK 25 and the repository development tools.
 - Gradle downloads the toolchain needed by each Minecraft version through Foojay Toolchain Resolver.
 - Version targets currently compile with:
   - Java 17: `common`, `1.18.2`, `1.19.2`, `1.20.1`
