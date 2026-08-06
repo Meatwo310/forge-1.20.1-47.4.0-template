@@ -15,7 +15,7 @@ Run the same check locally before submitting a change. If Nix is installed,
 you can use the development shell provided by this repository:
 
 ```sh
-nix develop -c editorconfig-checker -format github-actions -exclude '(^|/)src/generated/'
+nix develop -c editorconfig-checker -format github-actions
 ```
 
 Generated resources under `src/generated/` are excluded because their contents
