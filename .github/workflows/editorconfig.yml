@@ -24,4 +24,4 @@ jobs:
           version: v3.8.0
 
       - name: Check repository
-        run: editorconfig-checker -format github-actions
+        run: editorconfig-checker -format github-actions -exclude '(^|/)src/generated/'

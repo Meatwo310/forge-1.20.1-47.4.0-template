@@ -15,8 +15,11 @@ Run the same check locally before submitting a change. If Nix is installed,
 you can use the development shell provided by this repository:
 
 ```sh
-nix develop -c editorconfig-checker -format github-actions
+nix develop -c editorconfig-checker -format github-actions -exclude '(^|/)src/generated/'
 ```
+
+Generated resources under `src/generated/` are excluded because their contents
+are produced by DataGen rather than edited directly.
 
 If you installed `editorconfig-checker` by another method, run the same command
 directly without `nix develop`.
