@@ -18,6 +18,9 @@ you can use the development shell provided by this repository:
 nix develop -c editorconfig-checker -format github-actions
 ```
 
+Generated resources under `src/generated/` are excluded because their contents
+are produced by DataGen rather than edited directly.
+
 If you installed `editorconfig-checker` by another method, run the same command
 directly without `nix develop`.
 
