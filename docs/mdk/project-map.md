@@ -14,6 +14,8 @@ This file maps repository locations to responsibilities.
 
 - Applies loader Gradle plugins at the root with `apply false`.
 - Registers `writeCiBuildMatrix`.
+- Honors a loader project's `ciRequiresCommon=false` property when a standalone
+  project does not have a matching `<minecraft>-common` project.
 - Reads `version.txt` into `modVersion`.
 - Sets common subproject group, version, repositories, Java compile encoding,
   archive version, and IDEA behavior.
@@ -34,7 +36,8 @@ This file maps repository locations to responsibilities.
 
 `common/src/main`
 
-- Cross-version Java used by all loaders and Minecraft versions.
+- Cross-version Java used by convention-backed loaders and Minecraft versions.
+- The standalone 1.7.10 Forge project does not consume it.
 
 `common/src/config`
 
@@ -65,6 +68,9 @@ This file maps repository locations to responsibilities.
 - LexForge entrypoint, resources, mixin config, templates, and runtime deps.
 - Uses `lexforge-mod-conventions` for ForgeGradle 7+ or `lexforge-legacy-mod-conventions` for older versions.
 - Applies the matching `lexforge-config-conventions` or `lexforge-legacy-config-conventions` when config code is included.
+- `1.7.10/forge` is a standalone exception: it uses GTNHGradle, keeps
+  dependencies and repositories in project-local Gradle scripts, and has no
+  matching `1.7.10/common` project.
 
 `<mc>/neo`
 
@@ -93,7 +99,8 @@ This file maps repository locations to responsibilities.
 
 `src/main/resources`
 
-- Static loader resources, such as mixin JSON files.
+- Static loader resources, such as mixin JSON files and the GTNHGradle-backed
+  1.7.10 project's `mcmod.info`.
 
 `src/main/templates`
 

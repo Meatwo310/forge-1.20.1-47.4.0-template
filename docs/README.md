@@ -6,7 +6,9 @@ A Minecraft mod template for multi-version and multi-loader development, powered
 
 | Minecraft | Fabric | LexForge | NeoForge | Quilt |
 |-----------|:------:|:--------:|:--------:|:-----:|
-| <1.18.2   |   🚫   |    🚫    |    -     |  🚫   |
+| <1.7.10   |   🚫   |    🚫    |    -     |  🚫   |
+| 1.7.10 (GTNH) | 🚫 |    ✅    |    -     |  🚫   |
+| 1.8–1.17 |   🚫   |    🚫    |    -     |  🚫   |
 | 1.18.2    |   ✅   |    ✅    |    -     |  🚫   |
 | 1.19.2    |   ✅   |    ✅    |    -     |  🚫   |
 | 1.20.1    |   ✅   |    ✅    |    🚫    |  🚫   |
@@ -25,11 +27,12 @@ LLM agents and automation should also read [MDK Agent Notes](mdk/README.md) befo
 
 ## Project Layout
 
-- `common`: shared Java code used by every supported target.
+- `common`: shared Java code used by supported targets other than the standalone 1.7.10 Forge project.
 - `<minecraft>/common`: version-specific shared code. Older versions use the LexForge Legacy toolchain; 1.21+ and 26.x use NeoForm through NeoForge ModDev.
 - `<minecraft>/fabric`: Fabric loader project.
 - `<minecraft>/forge`: LexForge loader project. ForgeGradle 7+ targets use `lexforge-*` conventions; older targets use `lexforge-legacy-*` conventions.
 - `<minecraft>/neo`: NeoForge loader project.
+- `1.7.10/forge`: standalone Forge project built with GTNHGradle. Unlike the other loader projects, it does not consume a matching `1.7.10/common` project.
 - `src/config`: config-related common code that is packaged into the jar but kept out of the default main source set.
 - `src/configClient`: client-only config screen helpers for loaders that expose a config UI.
 - `buildSrc`: convention plugins that define loader-specific Gradle behavior.
@@ -40,7 +43,7 @@ LLM agents and automation should also read [MDK Agent Notes](mdk/README.md) befo
 
 Arrows point from shared code to the projects that consume it. The available
 loader projects vary by Minecraft version, as shown in the supported platform
-table above.
+table above. The standalone 1.7.10 Forge project is not part of this graph.
 
 <img alt="Project dependency graph" src="assets/project-dependencies.png" />
 
@@ -82,12 +85,15 @@ Fabric `fabric.mod.json` files are generated from shared values in `gradle.prope
 
 Each `<minecraft>/fabric/src/main/templates/fabric.mod.json` file is a small override JSON. Values written there are merged over the generated defaults, so use it for target-specific metadata or extra dependencies without duplicating the common metadata. Nested objects such as `depends` are merged recursively.
 
+The standalone 1.7.10 Forge project uses `1.7.10/forge/src/main/resources/mcmod.info`. Its build maps the shared root mod metadata into that file through GTNHGradle.
+
 ## Requirements
 
 - JDK 25 is recommended for configuring Gradle and matches the GitHub Actions build environment.
 - On Linux and Apple silicon macOS, `nix develop` provides JDK 25 and the repository development tools.
 - Gradle downloads the toolchain needed by each Minecraft version through Foojay Toolchain Resolver.
-- Version targets currently compile with:
+- Version targets currently use these Java language and bytecode levels:
+  - Java 8: `1.7.10`
   - Java 17: `common`, `1.18.2`, `1.19.2`, `1.20.1`
   - Java 21: `1.21.1`, `1.21.8`, `1.21.11`
   - Java 25: `26.1`, `26.1.2`
@@ -109,6 +115,7 @@ On Windows:
 Build a specific platform:
 
 ```sh
+./gradlew :1.7.10-forge:build
 ./gradlew :26.1.2-fabric:build
 ./gradlew :26.1.2-neo:build
 ```
@@ -120,6 +127,7 @@ Artifacts are written under each configured project directory, such as `26.1.2/f
 Run a client:
 
 ```sh
+./gradlew :1.7.10-forge:runClient
 ./gradlew :26.1.2-fabric:runClient
 ./gradlew :26.1.2-neo:runClient
 ```
@@ -127,6 +135,7 @@ Run a client:
 Run a server:
 
 ```sh
+./gradlew :1.7.10-forge:runServer
 ./gradlew :26.1.2-fabric:runServer
 ./gradlew :26.1.2-neo:runServer
 ```
@@ -165,6 +174,17 @@ files into each configured project directory's `build/ciRuntimeMods` for the Git
 test. Production loader metadata is also separate: add Fabric `depends`,
 LexForge `mods.toml` dependencies, or NeoForge `neoforge.mods.toml`
 dependencies only when users must install the dependency with the released mod.
+
+### Minecraft 1.7.10 Dependencies
+
+The GTNHGradle-backed 1.7.10 project keeps dependency declarations in
+`1.7.10/forge/dependencies.gradle` and additional repositories in
+`1.7.10/forge/repositories.gradle`. Use the configurations documented in
+`dependencies.gradle`; for example, use `devOnlyNonPublishable` for a dependency
+needed at compile time and in local runs without publishing it as a Maven
+dependency, or `runtimeOnlyNonPublishable` for a local runtime-only dependency.
+Keep target, Forge, mapping, and GTNHGradle options in
+`1.7.10/forge/gradle.properties`.
 
 ## Configuration System
 
@@ -394,7 +414,7 @@ PlatformConfigRegistrar.registerAll(modContainer, VersionedConfigSpec.bindAll(co
 
 ## GitHub Actions
 
-The build workflow detects subprojects from `settings.gradle.kts`, builds each one independently, uploads loader artifacts, runs the available server or game-test smoke checks, verifies the `runServer` shutdown log when that smoke test is used, and then launches a headless client runtime test with the produced jars. Note: Fabric Game Tests are configured through Fabric Loom and run as part of the Fabric `build` task.
+The build workflow detects subprojects from `settings.gradle.kts`, builds each one independently, uploads loader artifacts, runs the available server or game-test smoke checks, verifies the `runServer` shutdown log when that smoke test is used, and then launches a headless client runtime test with the produced jars. Most loader projects require a matching `<minecraft>-common` project; the standalone `1.7.10-forge` project opts out with `ciRequiresCommon=false`. Note: Fabric Game Tests are configured through Fabric Loom and run as part of the Fabric `build` task.
 
 ### Release CI
 

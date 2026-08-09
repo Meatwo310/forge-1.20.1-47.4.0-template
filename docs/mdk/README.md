@@ -19,8 +19,11 @@ commands change.
 
 The Gradle build is split by Minecraft version and loader:
 
-- `common` contains cross-version shared code.
-- `<mc>/common` contains code shared by loaders for one Minecraft version.
+- `common` contains cross-version shared code for targets other than the
+  standalone 1.7.10 Forge project.
+- `<mc>/common` contains code shared by loaders for one Minecraft version. The
+  standalone `1.7.10-forge` GTNHGradle project is the exception and has no
+  matching common project.
 - `<mc>/fabric` contains Fabric loader code and metadata for one version.
 - `<mc>/forge` contains LexForge loader code and metadata for one version. ForgeGradle 7 is the boundary between LexForge and LexForge Legacy conventions.
 - `<mc>/neo` contains NeoForge loader code and metadata for one version.
@@ -33,6 +36,7 @@ alone; check that repository's `include(...)` entries.
 Projects included by default in this template:
 
 - `common`
+- `1.7.10/forge` (standalone GTNHGradle project)
 - `1.18.2/common`, `1.18.2/forge`, `1.18.2/fabric`
 - `1.19.2/common`, `1.19.2/forge`, `1.19.2/fabric`
 - `1.20.1/common`, `1.20.1/forge`, `1.20.1/fabric`
@@ -50,6 +54,8 @@ Projects included by default in this template:
 - `version.txt` stores the release version used by all subprojects.
 - Each subproject `gradle.properties` stores the target Minecraft version,
   loader versions, Java version, mappings, and runtime dependency versions.
+- `1.7.10/forge/dependencies.gradle` and `repositories.gradle` contain the
+  GTNHGradle project's dependency and repository declarations.
 - `gradle/libs.versions.toml` stores shared plugin and dependency aliases.
 - `settings.gradle.kts` controls which projects exist in the current repository
   and which loader projects are included in the CI build matrix.
@@ -66,6 +72,8 @@ Loader metadata is generated during Gradle resource processing:
   metadata with default dependencies from `fabric-mod-conventions`.
 - LexForge and LexForge Legacy read `src/main/templates/META-INF/mods.toml`.
 - NeoForge reads `src/main/templates/META-INF/neoforge.mods.toml`.
+- The standalone 1.7.10 Forge project expands its static
+  `src/main/resources/mcmod.info` through GTNHGradle.
 - LexForge, LexForge Legacy, and NeoForge also include generated resources from
   `src/generated/resources`.
 
@@ -78,6 +86,8 @@ The `Build` workflow ignores docs-only changes. For code changes, it:
 
 - runs `./gradlew --configuration-cache --no-daemon writeCiBuildMatrix`;
 - builds every loader project detected from `settings.gradle.kts`;
+- normally requires a matching `<minecraft>-common` project, while honoring
+  `ciRequiresCommon=false` for standalone projects such as `1.7.10-forge`;
 - uploads each loader project's `build/libs` from its configured project directory;
 - runs Forge/NeoForge game tests when supported;
 - otherwise starts a server smoke test and verifies the shutdown log;
