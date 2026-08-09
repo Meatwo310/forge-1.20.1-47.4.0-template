@@ -25,6 +25,9 @@ Use the narrowest correct location:
 - Put one-version shared Java in `<mc>/common/src/main`.
 - Put one-version shared config helpers in `<mc>/common/src/config`.
 - Put loader startup code in `<mc>/fabric`, `<mc>/forge`, or `<mc>/neo`.
+- Keep standalone 1.7.10 Forge code and build configuration in
+  `1.7.10/forge`; it uses GTNHGradle and does not share a `1.7.10/common`
+  project.
 - Put Fabric client-only code in `<mc>/fabric/src/client`.
 - Put loader client config UI code in `src/configClient` where that project has
   the source set.
@@ -61,6 +64,8 @@ Keep edits small and paired:
 - If adding a project, update `settings.gradle.kts` and make sure the project
   name follows `<mc>-<loader>` or `<mc>-common`, with its directory under
   `<mc>/<loader>` or `<mc>/common`.
+- Set `ciRequiresCommon=false` only for a deliberately standalone loader
+  project. The existing example is `1.7.10-forge`.
 
 Do not edit generated build outputs.
 
@@ -75,6 +80,7 @@ Run the narrowest build first:
 Examples:
 
 ```bash
+./gradlew :1.7.10-forge:build
 ./gradlew :1.20.1-fabric:build
 ./gradlew :1.20.1-forge:build
 ./gradlew :26.1-neo:build
@@ -117,7 +123,8 @@ must have:
 
 - a valid `minecraftVersion`;
 - a loader suffix of `fabric`, `forge`, or `neo`;
-- a matching `<minecraftVersion>-common` project;
+- a matching `<minecraftVersion>-common` project unless it explicitly sets
+  `ciRequiresCommon=false`;
 - a numeric `javaVersion` when set;
 - buildable jars under the configured project directory's `build/libs`;
 - optional runtime jars staged by `collectCiRuntimeMods`.

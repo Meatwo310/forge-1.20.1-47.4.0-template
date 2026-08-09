@@ -106,6 +106,7 @@ jobs:
           set -o pipefail
           mkdir -p "${{ matrix.project_dir }}/run"
           printf 'eula=true\n' > "${{ matrix.project_dir }}/run/eula.txt"
+          printf 'online-mode=false\n' > "${{ matrix.project_dir }}/run/server.properties"
           server_log="${RUNNER_TEMP}/runServer-${{ matrix.subproject }}.log"
           printf 'stop\n' | ./gradlew ":${{ matrix.subproject }}:runServer" 2>&1 | tee "$server_log"
           grep -E '\[Server thread/INFO\].*Stopping server$' "$server_log"

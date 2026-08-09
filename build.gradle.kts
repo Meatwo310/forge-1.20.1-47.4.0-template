@@ -42,6 +42,10 @@ tasks.register("writeCiBuildMatrix") {
             ?.toString()
             ?.toBooleanStrictOrNull()
             ?: true
+        val requiresCommon = targetProject.findProperty("ciRequiresCommon")
+            ?.toString()
+            ?.toBooleanStrictOrNull()
+            ?: true
         val modloader = if (loader == "neo") "neoforge" else loader
         val mcRuntimeTest = when (loader) {
             "forge" -> "lexforge"
@@ -57,7 +61,7 @@ tasks.register("writeCiBuildMatrix") {
         if (minecraftVersion.isBlank()) {
             throw GradleException("Project '$projectName' must define minecraftVersion")
         }
-        if (!rootProject.childProjects.containsKey(commonProjectName)) {
+        if (requiresCommon && !rootProject.childProjects.containsKey(commonProjectName)) {
             throw GradleException("Project '$projectName' references missing common project '$commonProjectName'")
         }
         if (!javaVersion.matches(Regex("\\d+"))) {
@@ -191,7 +195,7 @@ subprojects {
 
     plugins.withType<JavaLibraryPlugin> {
         dependencies {
-            add("api", libs.jspecify)
+            add("compileOnlyApi", libs.jspecify)
         }
     }
 

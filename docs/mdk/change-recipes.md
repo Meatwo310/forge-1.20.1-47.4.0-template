@@ -60,6 +60,10 @@ request explicitly asks for a broad update.
 ./gradlew :<mc>-common:build :<mc>-<loader>:build
 ```
 
+The 1.7.10 GTNHGradle target is a deliberate standalone exception. Do not use
+it as the pattern for adding other Minecraft versions unless they also cannot
+consume the repository's shared convention projects.
+
 ## Add A New Loader Project For An Existing Version
 
 - Confirm `<mc>/common` exists and is included.
@@ -78,6 +82,21 @@ request explicitly asks for a broad update.
   - NeoForge config: `neoforge-config-conventions`
 - Add loader metadata templates and runtime dependencies.
 - Run `writeCiBuildMatrix` and the new project build.
+
+## Change The 1.7.10 GTNH Project
+
+- Keep implementation and resources under `1.7.10/forge`; there is no
+  `1.7.10/common` project.
+- Keep GTNHGradle settings in `1.7.10/forge/gradle.properties`.
+- Add dependencies and repositories through `dependencies.gradle` and
+  `repositories.gradle` in that project.
+- Keep `ciRequiresCommon=false` so CI accepts the standalone project.
+- Run:
+
+```bash
+./gradlew --configuration-cache --no-daemon writeCiBuildMatrix
+./gradlew :1.7.10-forge:build
+```
 
 ## Change Mod Metadata Values
 
