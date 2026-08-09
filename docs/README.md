@@ -7,8 +7,8 @@ A Minecraft mod template for multi-version and multi-loader development, powered
 | Minecraft | Fabric | LexForge | NeoForge | Quilt |
 |-----------|:------:|:--------:|:--------:|:-----:|
 | <1.7.10   |   🚫   |    🚫    |    -     |  🚫   |
-| 1.7.10 (GTNH) | 🚫 |    ✅    |    -     |  🚫   |
-| 1.8–1.17 |   🚫   |    🚫    |    -     |  🚫   |
+| 1.7.10    |   🚫   |    ✅    |    -     |  🚫   |
+| 1.8–1.17  |   🚫   |    🚫    |    -     |  🚫   |
 | 1.18.2    |   ✅   |    ✅    |    -     |  🚫   |
 | 1.19.2    |   ✅   |    ✅    |    -     |  🚫   |
 | 1.20.1    |   ✅   |    ✅    |    🚫    |  🚫   |
