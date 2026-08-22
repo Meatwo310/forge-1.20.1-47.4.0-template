@@ -49,7 +49,7 @@ tasks.register("writeCiBuildMatrix") {
             ?.toString()
             ?.toBooleanStrictOrNull()
             ?: true
-        val modloader = artifacts.artifactLoader
+        val modloader = if (loader == "neo") "neoforge" else loader
         val mcRuntimeTest = when (loader) {
             "forge" -> "lexforge"
             "neo" -> "neoforge"
@@ -89,7 +89,6 @@ tasks.register("writeCiBuildMatrix") {
             "run_mc_runtime_test" to runMcRuntimeTest,
             "modloader" to modloader,
             "mc_runtime_test" to mcRuntimeTest,
-            "artifact_loader" to artifacts.artifactLoader,
             "archive_base_name" to artifacts.archiveBaseName,
             "main_artifact" to artifacts.mainArtifactName,
             "sources_artifact" to artifacts.sourcesArtifactName,

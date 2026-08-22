@@ -34,6 +34,10 @@ dependencies {
     implementation(project(commonProject))
 }
 
+base {
+    archivesName = "$modId-$minecraftVersion-fabric"
+}
+
 sourceSets.main.get().resources.srcDir(generatedModMetadataDir)
 
 fabricModMetadata.depends.putAll(linkedMapOf(

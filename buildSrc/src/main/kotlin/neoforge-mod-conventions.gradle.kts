@@ -43,6 +43,10 @@ sourceSets.main.get().resources {
     exclude("src/generated/**/.cache")
 }
 
+base {
+    archivesName = "$modId-$minecraftVersion-neoforge"
+}
+
 java.toolchain {
     languageVersion = JavaLanguageVersion.of(javaVersion.toInt())
     @Suppress("UnstableApiUsage")

@@ -9,7 +9,7 @@ plugins {
 val modId = rootProject.property("modId").toString()
 val modGroup = rootProject.property("modGroupId").toString()
 val minecraftVersion = project.property("minecraftVersion").toString()
-val platformArtifacts = configurePlatformArtifacts(
+configurePlatformArtifacts(
     loader = "forge",
     mainJarTaskName = "reobfJar",
     sourcesJarTaskName = "sourcesJar",
@@ -18,7 +18,7 @@ val platformArtifacts = configurePlatformArtifacts(
 extra["modName"] = rootProject.property("modName")
 extra["modId"] = modId
 extra["modGroup"] = modGroup
-extra["customArchiveBaseName"] = platformArtifacts.archiveBaseName.get()
+extra["customArchiveBaseName"] = "$modId-$minecraftVersion-forge"
 extra["generateGradleTokenClass"] = "$modGroup.Tags"
 
 apply(plugin = "com.gtnewhorizons.gtnhconvention")

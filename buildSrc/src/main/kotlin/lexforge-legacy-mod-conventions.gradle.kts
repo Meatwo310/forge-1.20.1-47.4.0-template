@@ -42,6 +42,10 @@ sourceSets.main.get().resources {
     exclude("src/generated/**/.cache")
 }
 
+base {
+    archivesName = "$modId-$minecraftVersion-forge"
+}
+
 java.toolchain {
     languageVersion = JavaLanguageVersion.of(17)
     @Suppress("UnstableApiUsage")

@@ -9,8 +9,6 @@ import org.gradle.api.tasks.bundling.AbstractArchiveTask
 abstract class PlatformArtifactsExtension {
     abstract val minecraftVersion: Property<String>
     abstract val loader: Property<String>
-    abstract val artifactLoader: Property<String>
-    abstract val archiveBaseName: Property<String>
     abstract val mainJarTaskName: Property<String>
     abstract val sourcesJarTaskName: Property<String>
 }
@@ -18,7 +16,6 @@ abstract class PlatformArtifactsExtension {
 data class PlatformArtifacts(
     val minecraftVersion: String,
     val loader: String,
-    val artifactLoader: String,
     val archiveBaseName: String,
     val mainArtifactName: String,
     val sourcesArtifactName: String?,
@@ -32,27 +29,16 @@ fun Project.configurePlatformArtifacts(
     mainJarTaskName: String = "jar",
     sourcesJarTaskName: String? = null,
 ): PlatformArtifactsExtension {
-    val defaultArtifactLoader = when (loader) {
-        "fabric", "forge" -> loader
-        "neo" -> "neoforge"
-        else -> throw GradleException("Unsupported platform loader '$loader' in project '$name'")
+    if (loader !in setOf("fabric", "forge", "neo")) {
+        throw GradleException("Unsupported platform loader '$loader' in project '$name'")
     }
     val metadata = extensions.create("platformArtifacts", PlatformArtifactsExtension::class.java).apply {
         val configuredMinecraftVersion = project.property("minecraftVersion").toString()
-        val modId = project.property("modId").toString()
         minecraftVersion.set(configuredMinecraftVersion)
         this.loader.set(loader)
-        artifactLoader.set(defaultArtifactLoader)
-        archiveBaseName.set("$modId-$configuredMinecraftVersion-$defaultArtifactLoader")
         this.mainJarTaskName.set(mainJarTaskName)
         if (sourcesJarTaskName != null) {
             this.sourcesJarTaskName.set(sourcesJarTaskName)
-        }
-    }
-
-    pluginManager.withPlugin("base") {
-        extensions.configure(BasePluginExtension::class.java) {
-            archivesName.set(metadata.archiveBaseName)
         }
     }
 
@@ -64,8 +50,10 @@ fun Project.platformArtifacts(): PlatformArtifacts {
         ?: throw GradleException("Project '$name' must configure platformArtifacts")
     val minecraftVersion = metadata.minecraftVersion.orNull.orEmpty()
     val loader = metadata.loader.orNull.orEmpty()
-    val artifactLoader = metadata.artifactLoader.orNull.orEmpty()
-    val archiveBaseName = metadata.archiveBaseName.orNull.orEmpty()
+    val archiveBaseName = extensions.findByType(BasePluginExtension::class.java)
+        ?.archivesName
+        ?.orNull
+        .orEmpty()
 
     if (minecraftVersion.isBlank()) {
         throw GradleException("Project '$name' must define a non-blank minecraftVersion")
@@ -73,11 +61,8 @@ fun Project.platformArtifacts(): PlatformArtifacts {
     if (loader.isBlank()) {
         throw GradleException("Project '$name' must define a non-blank platform loader")
     }
-    if (artifactLoader.isBlank()) {
-        throw GradleException("Project '$name' must define a non-blank artifact loader")
-    }
     if (archiveBaseName.isBlank()) {
-        throw GradleException("Project '$name' must define a non-blank archive base name")
+        throw GradleException("Project '$name' must configure a non-blank base archivesName")
     }
 
     val mainArtifactName = artifactFileName(metadata.mainJarTaskName.get(), "main")
@@ -88,7 +73,6 @@ fun Project.platformArtifacts(): PlatformArtifacts {
     return PlatformArtifacts(
         minecraftVersion = minecraftVersion,
         loader = loader,
-        artifactLoader = artifactLoader,
         archiveBaseName = archiveBaseName,
         mainArtifactName = mainArtifactName,
         sourcesArtifactName = sourcesArtifactName,

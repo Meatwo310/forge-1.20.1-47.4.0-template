@@ -159,8 +159,9 @@ This file maps repository locations to responsibilities.
 
 `PlatformArtifacts.kt`
 
-- Defines loader identity, archive naming, and the Gradle tasks that produce
-  each platform's main and optional sources jars.
+- Defines loader identity and the Gradle tasks that produce each platform's
+  main and optional sources jars.
+- Reads the archive base name from the platform's Gradle `base` configuration.
 - Resolves exact archive file names for CI, release collection, and downstream
   publishing logic.
 
