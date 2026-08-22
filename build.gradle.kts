@@ -93,7 +93,7 @@ tasks.register("writeCiBuildMatrix") {
             "main_artifact" to artifacts.mainArtifactName,
             "sources_artifact" to artifacts.sourcesArtifactName,
             "release_artifacts" to artifacts.releaseArtifactNames,
-            "artifact_regex" to artifacts.mainArtifactRegex,
+            "modloader_regex" to ".*$loader.*",
         )
     }
 

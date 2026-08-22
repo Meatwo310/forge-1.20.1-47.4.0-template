@@ -21,7 +21,6 @@ data class PlatformArtifacts(
     val sourcesArtifactName: String?,
 ) {
     val releaseArtifactNames: List<String> = listOfNotNull(mainArtifactName, sourcesArtifactName)
-    val mainArtifactRegex: String = mainArtifactName.toRegexLiteral()
 }
 
 fun Project.configurePlatformArtifacts(
@@ -96,15 +95,4 @@ private fun Project.artifactFileName(taskName: String, kind: String): String {
         )
     }
     return jarOutputs.single().name
-}
-
-private fun String.toRegexLiteral(): String = buildString {
-    append('^')
-    for (character in this@toRegexLiteral) {
-        if (character in "\\.^$|?*+()[]{}") {
-            append('\\')
-        }
-        append(character)
-    }
-    append('$')
 }

@@ -141,7 +141,7 @@ jobs:
         with:
           mc: ${{ matrix.minecraft }}
           modloader: ${{ matrix.modloader }}
-          regex: ${{ matrix.artifact_regex }}
+          regex: ${{ matrix.modloader_regex }}
           mc-runtime-test: ${{ matrix.mc_runtime_test }}
           java: ${{ matrix.java }}
           fabric-api: ${{ matrix.fabric_api }}
