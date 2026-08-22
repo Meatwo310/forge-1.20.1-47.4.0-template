@@ -159,11 +159,17 @@ This file maps repository locations to responsibilities.
 
 `PlatformArtifacts.kt`
 
-- Defines loader identity and the Gradle tasks that produce each platform's
-  main and optional sources jars.
+- Defines loader identity, Java version, required publishing dependencies, and
+  the Gradle tasks that produce each platform's main and optional sources jars.
 - Reads the archive base name from the platform's Gradle `base` configuration.
 - Resolves exact archive file names for CI, release collection, and downstream
   publishing logic.
+
+`mod-publish-conventions.gradle.kts`
+
+- Configures CurseForge and Modrinth publications from `platformArtifacts`.
+- Downloads the selected GitHub Release instead of rebuilding its jars.
+- Supports destination, platform subset, release type, and dry-run inputs.
 
 `DependencyVersionConstraints.kt`
 
@@ -188,3 +194,9 @@ This file maps repository locations to responsibilities.
 - Builds all platform projects from the CI matrix.
 - Collects the exact release artifacts declared by each platform, generates
   release notes, tags, and publishes a GitHub Release.
+
+`.github/workflows/publish.yml`
+
+- Publishes an existing GitHub Release to CurseForge and/or Modrinth.
+- Defaults to dry-run mode and can restrict publishing to selected platform
+  projects.

@@ -31,7 +31,7 @@ val parchmentMinecraftVersion = project.findProperty("parchmentMinecraftVersion"
 val parchmentMappingsVersion = project.findProperty("parchmentMappingsVersion")?.toString()
 val neoDataRun = project.findProperty("neoDataRun")?.toString() ?: "data"
 configureCiRuntimeMods()
-configurePlatformArtifacts(loader = "neo", sourcesJarTaskName = "sourcesJar")
+configurePlatformArtifacts(loader = "neo", javaVersion = javaVersion.toInt(), sourcesJarTaskName = "sourcesJar")
 
 dependencies {
     implementation(project(commonProject))

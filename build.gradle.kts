@@ -36,7 +36,7 @@ tasks.register("writeCiBuildMatrix") {
         val artifacts = targetProject.platformArtifacts()
         val minecraftVersion = artifacts.minecraftVersion
         val loader = artifacts.loader
-        val javaVersion = targetProject.findProperty("javaVersion")?.toString() ?: "17"
+        val javaVersion = artifacts.javaVersion.toString()
         val fabricApiVersion = targetProject.findProperty("fabricApiVersion")
             ?.toString()
             ?.substringBefore("+")
@@ -49,7 +49,6 @@ tasks.register("writeCiBuildMatrix") {
             ?.toString()
             ?.toBooleanStrictOrNull()
             ?: true
-        val modloader = if (loader == "neo") "neoforge" else loader
         val mcRuntimeTest = when (loader) {
             "forge" -> "lexforge"
             "neo" -> "neoforge"
@@ -87,7 +86,7 @@ tasks.register("writeCiBuildMatrix") {
             "run_game_test_server" to (supportsGameTestServer && loader in setOf("forge", "neo")),
             "run_server" to !supportsGameTestServer,
             "run_mc_runtime_test" to runMcRuntimeTest,
-            "modloader" to modloader,
+            "modloader" to artifacts.modLoader,
             "mc_runtime_test" to mcRuntimeTest,
             "archive_base_name" to artifacts.archiveBaseName,
             "main_artifact" to artifacts.mainArtifactName,
@@ -227,3 +226,5 @@ subprojects {
         }
     }
 }
+
+apply(plugin = "mod-publish-conventions")

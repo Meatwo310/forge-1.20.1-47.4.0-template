@@ -31,6 +31,7 @@ plugins.withId("java-library") {
 }
 
 plugins.withId("net.minecraftforge.gradle") {
+    requirePublishedDependency("forge-config-api-port")
     val dependency = "${versionCatalog.module(VersionCatalogLibrary.ForgeConfigApiPortForge)}:$forgeConfigApiPortVersion"
     dependencies.add("implementation", dependency) {
         isTransitive = false

@@ -4,27 +4,36 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
 abstract class PlatformArtifactsExtension {
     abstract val minecraftVersion: Property<String>
     abstract val loader: Property<String>
+    abstract val javaVersion: Property<Int>
     abstract val mainJarTaskName: Property<String>
     abstract val sourcesJarTaskName: Property<String>
+    abstract val curseForgeRequiredDependencies: SetProperty<String>
+    abstract val modrinthRequiredDependencies: SetProperty<String>
 }
 
 data class PlatformArtifacts(
     val minecraftVersion: String,
     val loader: String,
+    val javaVersion: Int,
     val archiveBaseName: String,
     val mainArtifactName: String,
     val sourcesArtifactName: String?,
+    val curseForgeRequiredDependencies: Set<String>,
+    val modrinthRequiredDependencies: Set<String>,
 ) {
+    val modLoader: String = if (loader == "neo") "neoforge" else loader
     val releaseArtifactNames: List<String> = listOfNotNull(mainArtifactName, sourcesArtifactName)
 }
 
 fun Project.configurePlatformArtifacts(
     loader: String,
+    javaVersion: Int,
     mainJarTaskName: String = "jar",
     sourcesJarTaskName: String? = null,
 ): PlatformArtifactsExtension {
@@ -35,10 +44,13 @@ fun Project.configurePlatformArtifacts(
         val configuredMinecraftVersion = project.property("minecraftVersion").toString()
         minecraftVersion.set(configuredMinecraftVersion)
         this.loader.set(loader)
+        this.javaVersion.set(javaVersion)
         this.mainJarTaskName.set(mainJarTaskName)
         if (sourcesJarTaskName != null) {
             this.sourcesJarTaskName.set(sourcesJarTaskName)
         }
+        curseForgeRequiredDependencies.convention(emptySet())
+        modrinthRequiredDependencies.convention(emptySet())
     }
 
     return metadata
@@ -49,6 +61,7 @@ fun Project.platformArtifacts(): PlatformArtifacts {
         ?: throw GradleException("Project '$name' must configure platformArtifacts")
     val minecraftVersion = metadata.minecraftVersion.orNull.orEmpty()
     val loader = metadata.loader.orNull.orEmpty()
+    val javaVersion = metadata.javaVersion.orNull
     val archiveBaseName = extensions.findByType(BasePluginExtension::class.java)
         ?.archivesName
         ?.orNull
@@ -59,6 +72,9 @@ fun Project.platformArtifacts(): PlatformArtifacts {
     }
     if (loader.isBlank()) {
         throw GradleException("Project '$name' must define a non-blank platform loader")
+    }
+    if (javaVersion == null || javaVersion < 8) {
+        throw GradleException("Project '$name' must define a valid platform Java version")
     }
     if (archiveBaseName.isBlank()) {
         throw GradleException("Project '$name' must configure a non-blank base archivesName")
@@ -72,10 +88,23 @@ fun Project.platformArtifacts(): PlatformArtifacts {
     return PlatformArtifacts(
         minecraftVersion = minecraftVersion,
         loader = loader,
+        javaVersion = javaVersion,
         archiveBaseName = archiveBaseName,
         mainArtifactName = mainArtifactName,
         sourcesArtifactName = sourcesArtifactName,
+        curseForgeRequiredDependencies = metadata.curseForgeRequiredDependencies.get().toSortedSet(),
+        modrinthRequiredDependencies = metadata.modrinthRequiredDependencies.get().toSortedSet(),
     )
+}
+
+fun Project.requirePublishedDependency(
+    curseForgeSlug: String,
+    modrinthSlug: String = curseForgeSlug,
+) {
+    val metadata = extensions.findByType(PlatformArtifactsExtension::class.java)
+        ?: throw GradleException("Project '$name' must configure platformArtifacts before publishing dependencies")
+    metadata.curseForgeRequiredDependencies.add(curseForgeSlug)
+    metadata.modrinthRequiredDependencies.add(modrinthSlug)
 }
 
 private fun Project.artifactFileName(taskName: String, kind: String): String {

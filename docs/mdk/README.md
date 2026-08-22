@@ -97,6 +97,11 @@ The `Release` workflow is manual. It can bump `version.txt`, build all platform
 projects, collect release jars under `build/release/libs`, generate notes with
 `git-cliff`, tag `v<version>`, and create a GitHub Release.
 
+The manual `Publish` workflow consumes an existing GitHub Release and publishes
+its declared platform artifacts to CurseForge and/or Modrinth. Publication
+metadata comes from `platformArtifacts`; project IDs and supported environments
+remain explicit root Gradle properties.
+
 ## Agent Rules
 
 - Keep edits scoped to the requested version, loader, and source set.

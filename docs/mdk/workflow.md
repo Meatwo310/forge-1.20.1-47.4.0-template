@@ -99,6 +99,18 @@ For CI matrix or project inclusion changes:
 cat build/ci/build-matrix.json
 ```
 
+For publishing changes, configure a dry run against an existing GitHub Release
+and limit it to one platform while iterating:
+
+```bash
+./gradlew publishMods \
+  -PpublishGitHubRepository=owner/repository \
+  -PpublishTag=v1.0.0 \
+  -PpublishProjects=1.21.1-fabric \
+  -PpublishDestination=modrinth \
+  -PpublishDryRun=true
+```
+
 For Forge or NeoForge game test server support:
 
 ```bash
