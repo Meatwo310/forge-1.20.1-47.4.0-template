@@ -77,7 +77,8 @@ abstract class DownloadGitHubRelease @Inject constructor(
             )
         }
 
-        for (assetName in requiredAssets) {
+        val jarAssets = assets.keys.filter { it.endsWith(".jar") }.sorted()
+        for (assetName in jarAssets) {
             if (assetName != outputDirectory.resolve(assetName).name) {
                 throw GradleException("Invalid GitHub Release asset name '$assetName'")
             }
@@ -89,7 +90,7 @@ abstract class DownloadGitHubRelease @Inject constructor(
 
         changelogFile.get().asFile.apply {
             parentFile.mkdirs()
-            writeText(release["body"]?.toString().orEmpty(), StandardCharsets.UTF_8)
+            writeText("${release["body"]?.toString().orEmpty()}\n", StandardCharsets.UTF_8)
         }
     }
 
