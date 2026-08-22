@@ -111,6 +111,10 @@ and limit it to one platform while iterating:
   -PpublishDryRun=true
 ```
 
+The build downloads release metadata and assets directly through the GitHub
+REST API. Public releases require no local GitHub CLI or token; set
+`GITHUB_TOKEN` for private repositories or authenticated API access.
+
 For Forge or NeoForge game test server support:
 
 ```bash

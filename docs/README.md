@@ -503,8 +503,7 @@ requirePublishedDependency(
 )
 ```
 
-To inspect one target locally without uploading, authenticate GitHub CLI and
-run:
+To inspect one target locally without uploading, run:
 
 ```sh
 ./gradlew publishMods \
@@ -514,6 +513,10 @@ run:
   -PpublishDestination=modrinth \
   -PpublishDryRun=true
 ```
+
+Public GitHub Releases need no additional authentication. Set `GITHUB_TOKEN`
+when downloading from a private repository or when authenticated API access is
+otherwise required.
 
 Use a checkout whose `version.txt` and enabled projects match the selected
 release. Dry-run reports are written under `build/publishMods/`.

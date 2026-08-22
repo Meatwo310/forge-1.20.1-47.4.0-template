@@ -51,6 +51,10 @@ val publishReleaseType = providers.gradleProperty("publishReleaseType")
     .orElse("stable")
     .map { ReleaseType.valueOf(it.uppercase()) }
 val publishRepository = providers.gradleProperty("publishGitHubRepository")
+val githubToken = providers.environmentVariable("GITHUB_TOKEN")
+    .orElse(providers.environmentVariable("GH_TOKEN"))
+val githubApiUrl = providers.environmentVariable("GITHUB_API_URL")
+    .orElse("https://api.github.com")
 val publishInputDirectory = layout.buildDirectory.dir("publish/input")
 val publishChangelogFile = layout.buildDirectory.file("publish/RELEASE_NOTES.md")
 
@@ -61,6 +65,8 @@ val downloadPublishRelease = tasks.register<DownloadGitHubRelease>("downloadPubl
     tag.set(publishTag)
     artifactsDirectory.set(publishInputDirectory)
     changelogFile.set(publishChangelogFile)
+    apiUrl.set(githubApiUrl)
+    accessToken.set(githubToken)
 }
 
 tasks.withType<PublishModTask>().configureEach {
