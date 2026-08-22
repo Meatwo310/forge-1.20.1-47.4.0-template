@@ -14,6 +14,8 @@ This file maps repository locations to responsibilities.
 
 - Applies loader Gradle plugins at the root with `apply false`.
 - Registers `writeCiBuildMatrix`.
+- Reads each loader project's `platformArtifacts` metadata and records exact
+  main, sources, and release artifact names in the CI matrix.
 - Honors a loader project's `ciRequiresCommon=false` property when a standalone
   project does not have a matching `<minecraft>-common` project.
 - Reads `version.txt` into `modVersion`.
@@ -155,6 +157,13 @@ This file maps repository locations to responsibilities.
 - Kotlin helpers for source sets, CI runtime mod staging, Fabric metadata,
   dependency version actions, version support, and version catalog access.
 
+`PlatformArtifacts.kt`
+
+- Defines loader identity, archive naming, and the Gradle tasks that produce
+  each platform's main and optional sources jars.
+- Resolves exact archive file names for CI, release collection, and downstream
+  publishing logic.
+
 `DependencyVersionConstraints.kt`
 
 - Provides `req(version)` for `version { require(version) }` and `pin(version)`
@@ -176,4 +185,5 @@ This file maps repository locations to responsibilities.
 
 - Manually bumps or keeps `version.txt`.
 - Builds all platform projects from the CI matrix.
-- Collects jars, generates release notes, tags, and publishes a GitHub Release.
+- Collects the exact release artifacts declared by each platform, generates
+  release notes, tags, and publishes a GitHub Release.

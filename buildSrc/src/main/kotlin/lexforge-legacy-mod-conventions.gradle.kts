@@ -29,6 +29,7 @@ val commonProject = ":$minecraftVersion-common"
 val sharedCommonProject = ":common"
 evaluationDependsOn(sharedCommonProject)
 configureCiRuntimeMods()
+configurePlatformArtifacts(loader = "forge", sourcesJarTaskName = "sourcesJar")
 
 dependencies {
     implementation(project(commonProject))
@@ -39,10 +40,6 @@ sourceSets.main.get().resources {
     srcDir("src/generated/resources")
     exclude("**/*.bbmodel")
     exclude("src/generated/**/.cache")
-}
-
-base {
-    archivesName = "$modId-$minecraftVersion-forge"
 }
 
 java.toolchain {

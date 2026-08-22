@@ -32,6 +32,7 @@ val sharedCommonProject = ":common"
 evaluationDependsOn(commonProject)
 evaluationDependsOn(sharedCommonProject)
 configureCiRuntimeMods()
+configurePlatformArtifacts(loader = "forge", sourcesJarTaskName = "sourcesJar")
 
 val minecraft = extensions.getByType(MinecraftExtensionForProject::class.java)
 val fg = extensions.getByType(ForgeGradleExtension::class.java)
@@ -55,10 +56,6 @@ sourceSets.main.get().resources {
     srcDir("src/generated/resources")
     exclude("**/*.bbmodel")
     exclude("src/generated/**/.cache")
-}
-
-base {
-    archivesName = "$modId-$minecraftVersion-forge"
 }
 
 java.toolchain {

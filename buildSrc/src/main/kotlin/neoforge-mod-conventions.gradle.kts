@@ -1,4 +1,5 @@
 import net.meatwo310.mdk.build.configureCiRuntimeMods
+import net.meatwo310.mdk.build.configurePlatformArtifacts
 import net.meatwo310.mdk.build.supportsGameTestServer
 import org.gradle.api.file.DuplicatesStrategy
 
@@ -30,6 +31,7 @@ val parchmentMinecraftVersion = project.findProperty("parchmentMinecraftVersion"
 val parchmentMappingsVersion = project.findProperty("parchmentMappingsVersion")?.toString()
 val neoDataRun = project.findProperty("neoDataRun")?.toString() ?: "data"
 configureCiRuntimeMods()
+configurePlatformArtifacts(loader = "neo", sourcesJarTaskName = "sourcesJar")
 
 dependencies {
     implementation(project(commonProject))
@@ -39,10 +41,6 @@ sourceSets.main.get().resources {
     srcDir("src/generated/resources")
     exclude("**/*.bbmodel")
     exclude("src/generated/**/.cache")
-}
-
-base {
-    archivesName = "$modId-$minecraftVersion-neoforge"
 }
 
 java.toolchain {

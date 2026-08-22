@@ -127,6 +127,8 @@ must have:
   `ciRequiresCommon=false`;
 - a numeric `javaVersion` when set;
 - buildable jars under the configured project directory's `build/libs`;
+- `platformArtifacts` metadata naming the main jar task and, when generated,
+  the sources jar task;
 - optional runtime jars staged by `collectCiRuntimeMods`.
 
 Run `writeCiBuildMatrix` whenever those assumptions might have changed.

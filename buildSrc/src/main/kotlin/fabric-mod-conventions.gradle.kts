@@ -28,13 +28,10 @@ evaluationDependsOn(sharedCommonProject)
 val generatedModMetadataDir = layout.buildDirectory.dir("generated/sources/modMetadata")
 val fabricModMetadata = extensions.create<FabricModMetadataExtension>("fabricModMetadata")
 configureCiRuntimeMods()
+configurePlatformArtifacts(loader = "fabric", sourcesJarTaskName = "sourcesJar")
 
 dependencies {
     implementation(project(commonProject))
-}
-
-base {
-    archivesName = "$modId-$minecraftVersion-fabric"
 }
 
 sourceSets.main.get().resources.srcDir(generatedModMetadataDir)
