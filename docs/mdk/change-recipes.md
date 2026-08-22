@@ -12,13 +12,13 @@ request explicitly asks for a broad update.
 - Build representative downstream projects:
 
 ```bash
-./gradlew :1.18.2-forge:build :1.20.1-fabric:build :26.1-neo:build
+./gradlew :1.18.2-forge:build :1.20.1-fabric:build :26.1-neoforge:build
 ```
 
 ## Add Loader-Specific Code
 
 - Put Fabric code under `<mc>/fabric`, LexForge code under `<mc>/forge`, and
-  NeoForge code under `<mc>/neo`.
+  NeoForge code under `<mc>/neoforge`.
 - Keep entrypoint names consistent with `gradle.properties` and metadata
   templates.
 - For Fabric client code, use `src/client/java`.
@@ -45,7 +45,7 @@ request explicitly asks for a broad update.
 ## Add A New Minecraft Version
 
 - Add `<mc>/common`.
-- Add one or more loader project directories: `<mc>/fabric`, `<mc>/forge`, `<mc>/neo`.
+- Add one or more loader project directories: `<mc>/fabric`, `<mc>/forge`, `<mc>/neoforge`.
 - Add `include(...)` entries in `settings.gradle.kts`.
 - Add each subproject `build.gradle.kts`.
 - Add each subproject `gradle.properties` with `minecraftVersion` and required
@@ -67,7 +67,7 @@ consume the repository's shared convention projects.
 ## Add A New Loader Project For An Existing Version
 
 - Confirm `<mc>/common` exists and is included.
-- Add `<mc>/fabric`, `<mc>/forge`, or `<mc>/neo`.
+- Add `<mc>/fabric`, `<mc>/forge`, or `<mc>/neoforge`.
 - Add the project to `settings.gradle.kts`.
 - Use the matching convention plugins:
   - Fabric: `fabric-loom-mod-conventions` or `fabric-loom-remap-mod-conventions`
@@ -144,7 +144,7 @@ consume the repository's shared convention projects.
 
 ```bash
 ./gradlew --configuration-cache --no-daemon writeCiBuildMatrix
-./gradlew :1.20.1-fabric:build :1.20.1-forge:build :26.1-neo:build
+./gradlew :1.20.1-fabric:build :1.20.1-forge:build :26.1-neoforge:build
 ```
 
 ## Change CI Or Release Behavior

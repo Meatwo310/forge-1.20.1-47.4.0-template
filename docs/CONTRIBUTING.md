@@ -40,15 +40,15 @@ Use the smallest scope that describes the affected area.
 
 ### Scope Rules
 
-Subprojects are named for shared code, Minecraft versions, and loader targets, such as `common`, `1.20.1-common`, `1.20.1-fabric`, `1.20.1-forge`, or `26.1.2-neo`. Versioned subprojects live under directories such as `1.20.1/common`, `1.20.1/fabric`, `1.20.1/forge`, or `26.1.2/neo`.
+Subprojects are named for shared code, Minecraft versions, and loader targets, such as `common`, `1.20.1-common`, `1.20.1-fabric`, `1.20.1-forge`, or `26.1.2-neoforge`. Versioned subprojects live under directories such as `1.20.1/common`, `1.20.1/fabric`, `1.20.1/forge`, or `26.1.2/neoforge`.
 
-| Changes affect...                            | Scope                                                                    |
-|----------------------------------------------|--------------------------------------------------------------------------|
-| A single subproject                          | Use that project name, such as `fix(26.1.2-fabric): ...`                 |
-| Multiple but not all subprojects             | Include the relevant names, such as `feat(1.20.1-forge,1.21.1-neo): ...` |
-| All loaders for a specific Minecraft version | Use only the version number, such as `fix(1.20.1): ...`                  |
-| All Minecraft versions for a specific loader | Use only the loader name, such as `feat(fabric): ...`                    |
-| All subprojects equally                      | Scope is optional                                                        |
+| Changes affect...                            | Scope                                                                            |
+|----------------------------------------------|----------------------------------------------------------------------------------|
+| A single subproject                          | Use that project name, such as `fix(26.1.2-fabric): ...`                         |
+| Multiple but not all subprojects             | Include the relevant names, such as `feat(1.20.1-forge,1.21.1-neoforge): ...`     |
+| All loaders for a specific Minecraft version | Use only the version number, such as `fix(1.20.1): ...`                          |
+| All Minecraft versions for a specific loader | Use only the loader name, such as `feat(fabric): ...`                            |
+| All subprojects equally                      | Scope is optional                                                                |
 | Root-level repository metadata only          | Scope is optional                                                        |
 
 ### Recommended Types

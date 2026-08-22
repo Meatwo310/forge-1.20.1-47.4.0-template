@@ -18,7 +18,7 @@ tasks.register("writeCiBuildMatrix") {
     val outputFile = layout.buildDirectory.file("ci/build-matrix.json")
     val ciBuildProjects = (gradle.extensions.extraProperties["ciBuildProjectNames"] as List<*>)
         .map { it.toString() }
-    val supportedLoaders = setOf("fabric", "forge", "neo")
+    val supportedLoaders = setOf("fabric", "forge", "neoforge")
 
     val duplicates = ciBuildProjects
         .groupingBy { it }
@@ -46,10 +46,8 @@ tasks.register("writeCiBuildMatrix") {
             ?.toString()
             ?.toBooleanStrictOrNull()
             ?: true
-        val modloader = if (loader == "neo") "neoforge" else loader
         val mcRuntimeTest = when (loader) {
             "forge" -> "lexforge"
-            "neo" -> "neoforge"
             else -> loader
         }
         val supportsGameTestServer = minecraftVersion.supportsGameTestServer()
@@ -75,10 +73,10 @@ tasks.register("writeCiBuildMatrix") {
             "java" to javaVersion,
             "fabric_api" to fabricApiVersion,
             "supports_game_test_server" to supportsGameTestServer,
-            "run_game_test_server" to (supportsGameTestServer && loader in setOf("forge", "neo")),
+            "run_game_test_server" to (supportsGameTestServer && loader in setOf("forge", "neoforge")),
             "run_server" to !supportsGameTestServer,
             "run_mc_runtime_test" to runMcRuntimeTest,
-            "modloader" to modloader,
+            "modloader" to loader,
             "mc_runtime_test" to mcRuntimeTest,
             "artifact_regex" to ".*$loader.*",
         )

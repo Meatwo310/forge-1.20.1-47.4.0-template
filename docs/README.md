@@ -31,7 +31,7 @@ LLM agents and automation should also read [MDK Agent Notes](mdk/README.md) befo
 - `<minecraft>/common`: version-specific shared code. Older versions use the LexForge Legacy toolchain; 1.21+ and 26.x use NeoForm through NeoForge ModDev.
 - `<minecraft>/fabric`: Fabric loader project.
 - `<minecraft>/forge`: LexForge loader project. ForgeGradle 7+ targets use `lexforge-*` conventions; older targets use `lexforge-legacy-*` conventions.
-- `<minecraft>/neo`: NeoForge loader project.
+- `<minecraft>/neoforge`: NeoForge loader project.
 - `1.7.10/forge`: standalone Forge project built with GTNHGradle. Unlike the other loader projects, it does not consume a matching `1.7.10/common` project.
 - `src/config`: config-related common code that is packaged into the jar but kept out of the default main source set.
 - `src/configClient`: client-only config screen helpers for loaders that expose a config UI.
@@ -57,12 +57,12 @@ flowchart LR
 
     fabric[":{minecraft}-fabric"]
     forge[":{minecraft}-forge"]
-    neo[":{minecraft}-neo"]
+    neoforge[":{minecraft}-neoforge"]
 
     shared --> version
     version --> fabric
     version --> forge
-    version --> neo
+    version --> neoforge
 ```
 
 </details>
@@ -117,7 +117,7 @@ Build a specific platform:
 ```sh
 ./gradlew :1.7.10-forge:build
 ./gradlew :26.1.2-fabric:build
-./gradlew :26.1.2-neo:build
+./gradlew :26.1.2-neoforge:build
 ```
 
 Artifacts are written under each configured project directory, such as `26.1.2/fabric/build/libs/`. Additional runtime-only mod jars declared through `ciRuntimeMods` are collected under that project directory's `build/ciRuntimeMods/` for CI.
@@ -129,7 +129,7 @@ Run a client:
 ```sh
 ./gradlew :1.7.10-forge:runClient
 ./gradlew :26.1.2-fabric:runClient
-./gradlew :26.1.2-neo:runClient
+./gradlew :26.1.2-neoforge:runClient
 ```
 
 Run a server:
@@ -137,7 +137,7 @@ Run a server:
 ```sh
 ./gradlew :1.7.10-forge:runServer
 ./gradlew :26.1.2-fabric:runServer
-./gradlew :26.1.2-neo:runServer
+./gradlew :26.1.2-neoforge:runServer
 ```
 
 ## Dependencies
@@ -405,7 +405,7 @@ public final class VersionedModConfigs {
 }
 ```
 
-When a platform such as `26.1.2-fabric` or `26.1.2-neo` in `26.1.2/fabric` or `26.1.2/neo` needs its own entries, append them in the entry point before calling `PlatformConfigRegistrar`:
+When a platform such as `26.1.2-fabric` or `26.1.2-neoforge` in `26.1.2/fabric` or `26.1.2/neoforge` needs its own entries, append them in the entry point before calling `PlatformConfigRegistrar`:
 
 ```java
 var configs = ConfigDeclarations.append(VersionedModConfigs.ALL, ModConfigs.SERVER, NeoServerConfig.ENTRIES);

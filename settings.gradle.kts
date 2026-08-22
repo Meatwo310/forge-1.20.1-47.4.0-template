@@ -50,7 +50,7 @@ includeMc("1.20.1", "fabric")
 /// 1.21.1 ///
 includeMc("1.21.1", "common")
 includeMc("1.21.1", "forge")
-includeMc("1.21.1", "neo")
+includeMc("1.21.1", "neoforge")
 includeMc("1.21.1", "fabric")
 
 /// 1.21.8 ///
@@ -66,17 +66,17 @@ includeMc("1.21.11", "fabric")
 /// 26.1 ///
 includeMc("26.1", "common")
 includeMc("26.1", "fabric")
-includeMc("26.1", "neo")
+includeMc("26.1", "neoforge")
 
 /// 26.1.2 ///
 includeMc("26.1.2", "common")
 includeMc("26.1.2", "fabric")
-includeMc("26.1.2", "neo")
+includeMc("26.1.2", "neoforge")
 
 /// 26.2 ///
 includeMc("26.2", "common")
 includeMc("26.2", "fabric")
-includeMc("26.2", "neo")
+includeMc("26.2", "neoforge")
 
 val ciBuildProjectNames = rootProject.children
     .map { it.name }

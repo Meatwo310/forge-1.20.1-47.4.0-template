@@ -24,7 +24,7 @@ Use the narrowest correct location:
 - Put cross-version shared config declarations in `common/src/config`.
 - Put one-version shared Java in `<mc>/common/src/main`.
 - Put one-version shared config helpers in `<mc>/common/src/config`.
-- Put loader startup code in `<mc>/fabric`, `<mc>/forge`, or `<mc>/neo`.
+- Put loader startup code in `<mc>/fabric`, `<mc>/forge`, or `<mc>/neoforge`.
 - Keep standalone 1.7.10 Forge code and build configuration in
   `1.7.10/forge`; it uses GTNHGradle and does not share a `1.7.10/common`
   project.
@@ -41,7 +41,7 @@ Search before changing:
 
 ```bash
 rg "symbol_or_property_name"
-rg --files '<mc>/fabric' '<mc>/forge' '<mc>/neo' '<mc>/common' common
+rg --files '<mc>/fabric' '<mc>/forge' '<mc>/neoforge' '<mc>/common' common
 ```
 
 For repeated version/loader files, inspect at least one older Forge project, one
@@ -83,13 +83,13 @@ Examples:
 ./gradlew :1.7.10-forge:build
 ./gradlew :1.20.1-fabric:build
 ./gradlew :1.20.1-forge:build
-./gradlew :26.1-neo:build
+./gradlew :26.1-neoforge:build
 ```
 
 For shared changes, build representative downstream projects:
 
 ```bash
-./gradlew :1.18.2-forge:build :1.20.1-fabric:build :26.1-neo:build
+./gradlew :1.18.2-forge:build :1.20.1-fabric:build :26.1-neoforge:build
 ```
 
 For CI matrix or project inclusion changes:
@@ -102,7 +102,7 @@ cat build/ci/build-matrix.json
 For Forge or NeoForge game test server support:
 
 ```bash
-./gradlew :<forge-or-neo-project>:runGameTestServer
+./gradlew :<forge-or-neoforge-project>:runGameTestServer
 ```
 
 For older projects that do not support `runGameTestServer`, use a server smoke
@@ -122,7 +122,7 @@ The GitHub `Build` workflow derives platform projects from that repository's
 must have:
 
 - a valid `minecraftVersion`;
-- a loader suffix of `fabric`, `forge`, or `neo`;
+- a loader suffix of `fabric`, `forge`, or `neoforge`;
 - a matching `<minecraftVersion>-common` project unless it explicitly sets
   `ciRequiresCommon=false`;
 - a numeric `javaVersion` when set;

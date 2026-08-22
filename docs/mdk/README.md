@@ -26,7 +26,7 @@ The Gradle build is split by Minecraft version and loader:
   matching common project.
 - `<mc>/fabric` contains Fabric loader code and metadata for one version.
 - `<mc>/forge` contains LexForge loader code and metadata for one version. ForgeGradle 7 is the boundary between LexForge and LexForge Legacy conventions.
-- `<mc>/neo` contains NeoForge loader code and metadata for one version.
+- `<mc>/neoforge` contains NeoForge loader code and metadata for one version.
 - `buildSrc` owns reusable Gradle convention plugins and helper tasks.
 
 The project list for the repository you are editing is defined in
@@ -40,12 +40,12 @@ Projects included by default in this template:
 - `1.18.2/common`, `1.18.2/forge`, `1.18.2/fabric`
 - `1.19.2/common`, `1.19.2/forge`, `1.19.2/fabric`
 - `1.20.1/common`, `1.20.1/forge`, `1.20.1/fabric`
-- `1.21.1/common`, `1.21.1/forge`, `1.21.1/neo`, `1.21.1/fabric`
+- `1.21.1/common`, `1.21.1/forge`, `1.21.1/neoforge`, `1.21.1/fabric`
 - `1.21.8/common`, `1.21.8/forge`, `1.21.8/fabric`
 - `1.21.11/common`, `1.21.11/forge`, `1.21.11/fabric`
-- `26.1/common`, `26.1/fabric`, `26.1/neo`
-- `26.1.2/common`, `26.1.2/fabric`, `26.1.2/neo`
-- `26.2/common`, `26.2/fabric`, `26.2/neo`
+- `26.1/common`, `26.1/fabric`, `26.1/neoforge`
+- `26.1.2/common`, `26.1.2/fabric`, `26.1.2/neoforge`
+- `26.2/common`, `26.2/fabric`, `26.2/neoforge`
 
 ## Key Build Inputs
 

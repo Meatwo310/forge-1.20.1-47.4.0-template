@@ -72,7 +72,7 @@ This file maps repository locations to responsibilities.
   dependencies and repositories in project-local Gradle scripts, and has no
   matching `1.7.10/common` project.
 
-`<mc>/neo`
+`<mc>/neoforge`
 
 - NeoForge entrypoint, resources, templates, and runtime deps.
 - Uses `neoforge-mod-conventions`.
