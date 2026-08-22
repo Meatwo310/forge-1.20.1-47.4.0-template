@@ -168,6 +168,7 @@ This file maps repository locations to responsibilities.
 `mod-publish-conventions.gradle.kts`
 
 - Configures CurseForge and Modrinth publications from `platformArtifacts`.
+- Exposes Mod Publish Plugin's native CurseForge and Modrinth options through the `modPublishing` block.
 - Downloads the selected GitHub Release instead of rebuilding its jars.
 - Supports destination, platform subset, release type, and dry-run inputs.
 

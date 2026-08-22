@@ -13,7 +13,10 @@ abstract class PlatformArtifactsExtension {
     abstract val javaVersion: Property<Int>
     abstract val mainJarTaskName: Property<String>
     abstract val sourcesJarTaskName: Property<String>
+    /** CurseForge slugs for dependencies required by this platform artifact. */
     abstract val curseForgeRequiredDependencies: SetProperty<String>
+
+    /** Modrinth slugs for dependencies required by this platform artifact. */
     abstract val modrinthRequiredDependencies: SetProperty<String>
 }
 
@@ -97,6 +100,11 @@ fun Project.platformArtifacts(): PlatformArtifacts {
     )
 }
 
+/**
+ * Adds a required dependency to this platform artifact's CurseForge and Modrinth publications.
+ *
+ * The two sites usually use different slugs for the same project. When they match, [modrinthSlug] may be omitted.
+ */
 fun Project.requirePublishedDependency(
     curseForgeSlug: String,
     modrinthSlug: String = curseForgeSlug,

@@ -9,6 +9,19 @@ plugins {
     id("net.minecraftforge.gradle") apply false
     id("net.neoforged.moddev") apply false
     id("net.neoforged.moddev.legacyforge") apply false
+    id("mod-publish-conventions")
+}
+
+modPublishing {
+    curseForge {
+        // projectId.set("123456")
+        client.set(true)
+        server.set(true)
+    }
+    modrinth {
+        // projectId.set("xxxxxxxx")
+        environment.set(CLIENT_AND_SERVER)
+    }
 }
 
 tasks.named<Wrapper>("wrapper").configure {
@@ -226,5 +239,3 @@ subprojects {
         }
     }
 }
-
-apply(plugin = "mod-publish-conventions")

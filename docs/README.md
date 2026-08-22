@@ -462,12 +462,27 @@ as `1.20.1-fabric,1.21.1-neo`.
 
 Before publishing:
 
-1. Uncomment and fill `publishCurseForgeProjectId` and
-   `publishModrinthProjectId` in `gradle.properties` for the destinations you
-   use.
-2. Review `publishCurseForgeClient`, `publishCurseForgeServer`, and
-   `publishModrinthEnvironment`. These describe where the mod can be installed;
-   they cannot be inferred reliably from loader build settings.
+```kotlin
+modPublishing {
+    curseForge {
+        projectId.set("123456")
+        client.set(true)
+        server.set(true)
+    }
+    modrinth {
+        projectId.set("project-slug")
+        environment.set(CLIENT_AND_SERVER)
+    }
+}
+```
+
+1. Uncomment and fill each `projectId` you use in the root
+   `build.gradle.kts` `modPublishing` block.
+2. Review CurseForge's `client` and `server` flags and Modrinth's typed
+   `environment` value in the same block. These describe where the mod can be
+   installed; they cannot be inferred reliably from loader build settings. In
+   particular, Modrinth distinguishes `CLIENT_AND_SERVER` (required on both
+   sides) from `CLIENT_OR_SERVER` (installable on either side independently).
 3. Add `CURSEFORGE_TOKEN` and `MODRINTH_TOKEN` as GitHub repository secrets.
 4. Create a GitHub Release with the `Release` workflow before running
    `Publish` for its tag.

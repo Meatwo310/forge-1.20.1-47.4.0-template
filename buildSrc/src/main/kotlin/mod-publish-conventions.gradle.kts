@@ -1,12 +1,23 @@
+import me.modmuss50.mpp.ModPublishExtension
 import me.modmuss50.mpp.PublishModTask
 import me.modmuss50.mpp.ReleaseType
-import me.modmuss50.mpp.platforms.modrinth.ModrinthEnvironment
 import net.meatwo310.mdk.build.DownloadGitHubRelease
+import net.meatwo310.mdk.build.ModPublishingExtension
 import net.meatwo310.mdk.build.platformArtifacts
 
 plugins {
     id("me.modmuss50.mod-publish-plugin")
 }
+
+val modPublish = extensions.getByType<ModPublishExtension>()
+val curseForgeOptions = modPublish.curseforgeOptions {}.get()
+val modrinthOptions = modPublish.modrinthOptions {}.get()
+extensions.create(
+    "modPublishing",
+    ModPublishingExtension::class.java,
+    curseForgeOptions,
+    modrinthOptions,
+)
 
 data class PublishTarget(
     val projectName: String,
@@ -40,14 +51,6 @@ val publishReleaseType = providers.gradleProperty("publishReleaseType")
     .orElse("stable")
     .map { ReleaseType.valueOf(it.uppercase()) }
 val publishRepository = providers.gradleProperty("publishGitHubRepository")
-val publishCurseForgeProjectId = providers.gradleProperty("publishCurseForgeProjectId")
-val publishCurseForgeClient = providers.gradleProperty("publishCurseForgeClient")
-    .map { it.toBooleanStrict() }
-val publishCurseForgeServer = providers.gradleProperty("publishCurseForgeServer")
-    .map { it.toBooleanStrict() }
-val publishModrinthProjectId = providers.gradleProperty("publishModrinthProjectId")
-val publishModrinthEnvironment = providers.gradleProperty("publishModrinthEnvironment")
-    .map { ModrinthEnvironment.valueOf(it.uppercase()) }
 val publishInputDirectory = layout.buildDirectory.dir("publish/input")
 val publishChangelogFile = layout.buildDirectory.file("publish/RELEASE_NOTES.md")
 
@@ -126,16 +129,14 @@ gradle.projectsEvaluated {
 
             if (selectedPublishDestination in setOf("both", "curseforge")) {
                 curseforge("curseforge$taskSuffix") {
+                    from(curseForgeOptions)
                     accessToken.set(providers.environmentVariable("CURSEFORGE_TOKEN"))
-                    projectId.set(publishCurseForgeProjectId)
                     file.set(mainFile)
                     version.set(releaseVersion)
                     this.displayName.set(displayName)
                     modLoaders.add(target.modLoader)
                     minecraftVersions.add(target.minecraftVersion)
                     javaVersions.add(JavaVersion.toVersion(target.javaVersion))
-                    client.set(publishCurseForgeClient)
-                    server.set(publishCurseForgeServer)
                     if (sourcesFile != null) {
                         additionalFile(sourcesFile) {
                             name.set("Sources")
@@ -147,14 +148,13 @@ gradle.projectsEvaluated {
 
             if (selectedPublishDestination in setOf("both", "modrinth")) {
                 modrinth("modrinth$taskSuffix") {
+                    from(modrinthOptions)
                     accessToken.set(providers.environmentVariable("MODRINTH_TOKEN"))
-                    projectId.set(publishModrinthProjectId)
                     file.set(mainFile)
                     version.set(releaseVersion)
                     this.displayName.set(displayName)
                     modLoaders.add(target.modLoader)
                     minecraftVersions.add(target.minecraftVersion)
-                    environment.set(publishModrinthEnvironment)
                     if (sourcesFile != null) {
                         additionalFile(sourcesFile) {
                             type.set(SOURCES_JAR)
