@@ -488,18 +488,24 @@ modPublishing {
    `Publish` for its tag.
 
 Artifact names, Minecraft versions, loader names, Java versions, optional
-sources jars, and convention-provided required dependencies are derived from
+sources jars, and convention-provided publishing dependencies are derived from
 each project's `platformArtifacts` metadata. `fabric-api-conventions` registers
 Fabric API, while the Fabric and modern LexForge config conventions register
 Forge Config API Port. A project-specific convention or build script can add
 another required dependency without editing the publish workflow:
 
 ```kotlin
-import net.meatwo310.mdk.build.requirePublishedDependency
+import me.modmuss50.mpp.PlatformDependency.DependencyType.OPTIONAL
+import net.meatwo310.mdk.build.publishDependency
 
-requirePublishedDependency(
+publishDependency(
     curseForgeSlug = "dependency-curseforge-slug",
     modrinthSlug = "dependency-modrinth-slug",
+    type = OPTIONAL,
+)
+
+publishDependency(
+    modrinthSlug = "modrinth-only-dependency",
 )
 ```
 

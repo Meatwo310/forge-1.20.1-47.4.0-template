@@ -1,5 +1,6 @@
 package net.meatwo310.mdk.build
 
+import me.modmuss50.mpp.PlatformDependency.DependencyType
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginExtension
@@ -13,12 +14,14 @@ abstract class PlatformArtifactsExtension {
     abstract val javaVersion: Property<Int>
     abstract val mainJarTaskName: Property<String>
     abstract val sourcesJarTaskName: Property<String>
-    /** CurseForge slugs for dependencies required by this platform artifact. */
-    abstract val curseForgeRequiredDependencies: SetProperty<String>
-
-    /** Modrinth slugs for dependencies required by this platform artifact. */
-    abstract val modrinthRequiredDependencies: SetProperty<String>
+    abstract val curseForgeDependencies: SetProperty<PublishedDependency>
+    abstract val modrinthDependencies: SetProperty<PublishedDependency>
 }
+
+data class PublishedDependency(
+    val slug: String,
+    val type: DependencyType,
+)
 
 data class PlatformArtifacts(
     val minecraftVersion: String,
@@ -27,8 +30,8 @@ data class PlatformArtifacts(
     val archiveBaseName: String,
     val mainArtifactName: String,
     val sourcesArtifactName: String?,
-    val curseForgeRequiredDependencies: Set<String>,
-    val modrinthRequiredDependencies: Set<String>,
+    val curseForgeDependencies: Set<PublishedDependency>,
+    val modrinthDependencies: Set<PublishedDependency>,
 ) {
     val modLoader: String = if (loader == "neo") "neoforge" else loader
     val releaseArtifactNames: List<String> = listOfNotNull(mainArtifactName, sourcesArtifactName)
@@ -52,8 +55,8 @@ fun Project.configurePlatformArtifacts(
         if (sourcesJarTaskName != null) {
             this.sourcesJarTaskName.set(sourcesJarTaskName)
         }
-        curseForgeRequiredDependencies.convention(emptySet())
-        modrinthRequiredDependencies.convention(emptySet())
+        curseForgeDependencies.convention(emptySet())
+        modrinthDependencies.convention(emptySet())
     }
 
     return metadata
@@ -95,25 +98,47 @@ fun Project.platformArtifacts(): PlatformArtifacts {
         archiveBaseName = archiveBaseName,
         mainArtifactName = mainArtifactName,
         sourcesArtifactName = sourcesArtifactName,
-        curseForgeRequiredDependencies = metadata.curseForgeRequiredDependencies.get().toSortedSet(),
-        modrinthRequiredDependencies = metadata.modrinthRequiredDependencies.get().toSortedSet(),
+        curseForgeDependencies = metadata.curseForgeDependencies.get().sortedDependencies(),
+        modrinthDependencies = metadata.modrinthDependencies.get().sortedDependencies(),
     )
 }
 
 /**
- * Adds a required dependency to this platform artifact's CurseForge and Modrinth publications.
- *
- * The two sites usually use different slugs for the same project. When they match, [modrinthSlug] may be omitted.
+ * Adds a dependency with the same slug to this platform artifact's CurseForge and Modrinth publications.
  */
-fun Project.requirePublishedDependency(
-    curseForgeSlug: String,
-    modrinthSlug: String = curseForgeSlug,
+fun Project.publishDependency(
+    slug: String,
+    type: DependencyType = DependencyType.REQUIRED,
+) = publishDependency(slug, slug, type)
+
+/**
+ * Adds a dependency to either or both hosting sites for this platform artifact.
+ *
+ * Pass `null` for a site where the dependency should not be declared. At least one slug must be provided.
+ */
+fun Project.publishDependency(
+    curseForgeSlug: String? = null,
+    modrinthSlug: String? = null,
+    type: DependencyType = DependencyType.REQUIRED,
 ) {
     val metadata = extensions.findByType(PlatformArtifactsExtension::class.java)
         ?: throw GradleException("Project '$name' must configure platformArtifacts before publishing dependencies")
-    metadata.curseForgeRequiredDependencies.add(curseForgeSlug)
-    metadata.modrinthRequiredDependencies.add(modrinthSlug)
+    if (curseForgeSlug == null && modrinthSlug == null) {
+        throw GradleException("Project '$name' must provide a CurseForge or Modrinth dependency slug")
+    }
+    curseForgeSlug?.let { slug ->
+        metadata.curseForgeDependencies.add(PublishedDependency(slug.validatedDependencySlug(), type))
+    }
+    modrinthSlug?.let { slug ->
+        metadata.modrinthDependencies.add(PublishedDependency(slug.validatedDependencySlug(), type))
+    }
 }
+
+private fun Set<PublishedDependency>.sortedDependencies(): Set<PublishedDependency> =
+    sortedWith(compareBy({ it.type.name }, { it.slug })).toCollection(linkedSetOf())
+
+private fun String.validatedDependencySlug(): String =
+    takeIf(String::isNotBlank) ?: throw GradleException("Publishing dependency slugs must not be blank")
 
 private fun Project.artifactFileName(taskName: String, kind: String): String {
     val artifactTask = tasks.findByName(taskName)

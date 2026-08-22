@@ -159,7 +159,7 @@ This file maps repository locations to responsibilities.
 
 `PlatformArtifacts.kt`
 
-- Defines loader identity, Java version, required publishing dependencies, and
+- Defines loader identity, Java version, publishing dependencies, and
   the Gradle tasks that produce each platform's main and optional sources jars.
 - Reads the archive base name from the platform's Gradle `base` configuration.
 - Resolves exact archive file names for CI, release collection, and downstream

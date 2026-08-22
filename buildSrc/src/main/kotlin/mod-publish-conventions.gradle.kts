@@ -1,8 +1,12 @@
 import me.modmuss50.mpp.ModPublishExtension
+import me.modmuss50.mpp.PlatformDependency.DependencyType
 import me.modmuss50.mpp.PublishModTask
 import me.modmuss50.mpp.ReleaseType
+import me.modmuss50.mpp.platforms.curseforge.CurseforgeOptions
+import me.modmuss50.mpp.platforms.modrinth.ModrinthOptions
 import net.meatwo310.mdk.build.DownloadGitHubRelease
 import net.meatwo310.mdk.build.ModPublishingExtension
+import net.meatwo310.mdk.build.PublishedDependency
 import net.meatwo310.mdk.build.platformArtifacts
 
 plugins {
@@ -26,9 +30,31 @@ data class PublishTarget(
     val javaVersion: Int,
     val mainArtifactName: String,
     val sourcesArtifactName: String?,
-    val curseForgeRequiredDependencies: Set<String>,
-    val modrinthRequiredDependencies: Set<String>,
+    val curseForgeDependencies: Set<PublishedDependency>,
+    val modrinthDependencies: Set<PublishedDependency>,
 )
+
+fun CurseforgeOptions.addDependencies(dependencies: Set<PublishedDependency>) {
+    for (dependency in dependencies) {
+        when (dependency.type) {
+            DependencyType.REQUIRED -> requires(dependency.slug)
+            DependencyType.OPTIONAL -> optional(dependency.slug)
+            DependencyType.INCOMPATIBLE -> incompatible(dependency.slug)
+            DependencyType.EMBEDDED -> embeds(dependency.slug)
+        }
+    }
+}
+
+fun ModrinthOptions.addDependencies(dependencies: Set<PublishedDependency>) {
+    for (dependency in dependencies) {
+        when (dependency.type) {
+            DependencyType.REQUIRED -> requires(dependency.slug)
+            DependencyType.OPTIONAL -> optional(dependency.slug)
+            DependencyType.INCOMPATIBLE -> incompatible(dependency.slug)
+            DependencyType.EMBEDDED -> embeds(dependency.slug)
+        }
+    }
+}
 
 fun String.toPublishTaskSuffix(): String =
     split(Regex("[^A-Za-z0-9]+"))
@@ -85,8 +111,8 @@ gradle.projectsEvaluated {
                 javaVersion = artifacts.javaVersion,
                 mainArtifactName = artifacts.mainArtifactName,
                 sourcesArtifactName = artifacts.sourcesArtifactName,
-                curseForgeRequiredDependencies = artifacts.curseForgeRequiredDependencies,
-                modrinthRequiredDependencies = artifacts.modrinthRequiredDependencies,
+                curseForgeDependencies = artifacts.curseForgeDependencies,
+                modrinthDependencies = artifacts.modrinthDependencies,
             )
         }
     val requestedPublishProjects = providers.gradleProperty("publishProjects")
@@ -148,7 +174,7 @@ gradle.projectsEvaluated {
                             name.set("Sources")
                         }
                     }
-                    requires(*target.curseForgeRequiredDependencies.toTypedArray())
+                    addDependencies(target.curseForgeDependencies)
                 }
             }
 
@@ -166,7 +192,7 @@ gradle.projectsEvaluated {
                             type.set(SOURCES_JAR)
                         }
                     }
-                    requires(*target.modrinthRequiredDependencies.toTypedArray())
+                    addDependencies(target.modrinthDependencies)
                 }
             }
         }
