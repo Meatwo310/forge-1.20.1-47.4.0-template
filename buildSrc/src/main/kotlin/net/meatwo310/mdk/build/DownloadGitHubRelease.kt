@@ -28,6 +28,10 @@ import javax.inject.Inject
 abstract class DownloadGitHubRelease @Inject constructor(
     private val fileSystemOperations: FileSystemOperations,
 ) : DefaultTask() {
+    init {
+        outputs.upToDateWhen { false }
+    }
+
     @get:Input
     abstract val repository: Property<String>
 
