@@ -1,5 +1,6 @@
 import com.gtnewhorizons.gtnhgradle.GTNHGradlePlugin.GTNHExtension
 import com.gtnewhorizons.gtnhgradle.modules.ToolchainModule
+import net.meatwo310.mdk.build.configurePlatformArtifacts
 
 plugins {
     id("com.gtnewhorizons.gtnhconvention") version "2.0.20" apply false
@@ -8,6 +9,11 @@ plugins {
 val modId = rootProject.property("modId").toString()
 val modGroup = rootProject.property("modGroupId").toString()
 val minecraftVersion = project.property("minecraftVersion").toString()
+configurePlatformArtifacts(
+    loader = "forge",
+    mainJarTaskName = "reobfJar",
+    sourcesJarTaskName = "sourcesJar",
+)
 
 extra["modName"] = rootProject.property("modName")
 extra["modId"] = modId

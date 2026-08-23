@@ -153,10 +153,13 @@ jobs:
       - name: Collect release jars
         run: |
           mkdir -p build/release/libs
-          while IFS= read -r project_dir; do
-            find "$project_dir/build/libs" -maxdepth 1 -type f -name '*.jar' \
-              -exec cp {} build/release/libs/ \;
-          done < <(jq -r '.[].project_dir' build/ci/build-matrix.json)
+          while IFS= read -r artifact; do
+            test -f "$artifact"
+            cp "$artifact" build/release/libs/
+          done < <(
+            jq -r '.[] | .project_dir as $dir | .release_artifacts[] | "\($dir)/build/libs/\(.)"' \
+              build/ci/build-matrix.json
+          )
           test -n "$(find build/release/libs -maxdepth 1 -type f -name '*.jar' -print -quit)"
           ls -la build/release/libs
 

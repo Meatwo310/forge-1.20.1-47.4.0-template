@@ -32,6 +32,7 @@ val sharedCommonProject = ":common"
 evaluationDependsOn(commonProject)
 evaluationDependsOn(sharedCommonProject)
 configureCiRuntimeMods()
+configurePlatformArtifacts(loader = "forge", sourcesJarTaskName = "sourcesJar")
 
 val minecraft = extensions.getByType(MinecraftExtensionForProject::class.java)
 val fg = extensions.getByType(ForgeGradleExtension::class.java)

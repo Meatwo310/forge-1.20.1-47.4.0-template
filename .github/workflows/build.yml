@@ -124,11 +124,9 @@ jobs:
         if: ${{ matrix.run_mc_runtime_test }}
         run: |
           mkdir -p run/mods
-          find "${{ matrix.project_dir }}/build/libs" -maxdepth 1 -type f -name '*.jar' \
-            ! -name '*-sources.jar' \
-            ! -name '*-javadoc.jar' \
-            ! -name '*-dev.jar' \
-            -exec cp {} run/mods/ \;
+          main_artifact="${{ matrix.project_dir }}/build/libs/${{ matrix.main_artifact }}"
+          test -f "$main_artifact"
+          cp "$main_artifact" run/mods/
           if [[ -d "${{ matrix.project_dir }}/build/ciRuntimeMods" ]]; then
             find "${{ matrix.project_dir }}/build/ciRuntimeMods" -maxdepth 1 -type f -name '*.jar' \
               -exec cp {} run/mods/ \;
@@ -143,7 +141,7 @@ jobs:
         with:
           mc: ${{ matrix.minecraft }}
           modloader: ${{ matrix.modloader }}
-          regex: ${{ matrix.artifact_regex }}
+          regex: ${{ matrix.modloader_regex }}
           mc-runtime-test: ${{ matrix.mc_runtime_test }}
           java: ${{ matrix.java }}
           fabric-api: ${{ matrix.fabric_api }}
