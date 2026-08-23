@@ -111,7 +111,7 @@ jobs:
           ./gradlew --no-daemon --continue publishMods "${publish_args[@]}"
 
       - name: Upload dry-run report
-        if: ${{ !cancelled() && inputs.dry_run }}
+        if: ${{ !cancelled() && inputs.dry_run && hashFiles('build/publishMods/**') != '' }}
         uses: actions/upload-artifact@v7
         with:
           name: publish-dry-run-${{ env.PUBLISH_TAG }}
