@@ -1,5 +1,7 @@
 # custom-mdk template guide
 
+[English](README.md) | [日本語](README.ja.md)
+
 A Minecraft mod template for multi-version and multi-loader development, powered by a single Gradle multi-project build. It includes Kotlin DSL build logic, shared source sets, Mixin support, Parchment mappings where available, generated mod metadata, versioned artifact names, Java toolchain management, runtime mod staging, and GitHub Actions for build workflows.
 
 ## Supported Platforms
