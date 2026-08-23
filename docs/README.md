@@ -453,6 +453,80 @@ are ready. Release notes include breaking changes, `feat`, `fix`, and `perf`
 commits. Template maintenance commits with the `mdk` type and other commit
 types are omitted.
 
+### CurseForge And Modrinth Publishing
+
+The separate `Publish` workflow copies the jars and release notes from an
+existing GitHub Release to CurseForge, Modrinth, or both. It is a dry run by
+default and can publish all platform projects or a comma-separated subset such
+as `1.20.1-fabric,1.21.1-neo`.
+
+Before publishing:
+
+```kotlin
+modPublishing {
+    curseForge {
+        projectId.set("123456")
+        client.set(true)
+        server.set(true)
+    }
+    modrinth {
+        projectId.set("project-slug")
+        environment.set(CLIENT_AND_SERVER)
+    }
+}
+```
+
+1. Uncomment and fill each `projectId` you use in the root
+   `build.gradle.kts` `modPublishing` block.
+2. Review CurseForge's `client` and `server` flags and Modrinth's typed
+   `environment` value in the same block. These describe where the mod can be
+   installed; they cannot be inferred reliably from loader build settings. In
+   particular, Modrinth distinguishes `CLIENT_AND_SERVER` (required on both
+   sides) from `CLIENT_OR_SERVER` (installable on either side independently).
+3. Add `CURSEFORGE_TOKEN` and `MODRINTH_TOKEN` as GitHub repository secrets.
+4. Create a GitHub Release with the `Release` workflow before running
+   `Publish` for its tag.
+
+Artifact names, Minecraft versions, loader names, Java versions, optional
+sources jars, and convention-provided publishing dependencies are derived from
+each project's `platformArtifacts` metadata. `fabric-api-conventions` registers
+Fabric API, while the Fabric and modern LexForge config conventions register
+Forge Config API Port. A project-specific convention or build script can add
+another required dependency without editing the publish workflow:
+
+```kotlin
+import net.meatwo310.mdk.build.PublishedDependencyType.OPTIONAL
+import net.meatwo310.mdk.build.publishDependency
+
+publishDependency(
+    curseForgeSlug = "dependency-curseforge-slug",
+    modrinthSlug = "dependency-modrinth-slug",
+    type = OPTIONAL,
+)
+
+publishDependency(
+    modrinthSlug = "modrinth-only-dependency",
+)
+```
+
+To inspect one target locally without uploading, run:
+
+```sh
+./gradlew publishMods \
+  -PpublishGitHubRepository=owner/repository \
+  -PpublishTag=v1.0.0 \
+  -PpublishProjects=1.21.1-fabric \
+  -PpublishDestination=modrinth \
+  -PpublishDryRun=true
+```
+
+Public GitHub Releases need no additional authentication. Set `GITHUB_TOKEN`
+when downloading from a private repository or when authenticated API access is
+otherwise required.
+
+Use a checkout whose `version.txt` and enabled projects match the selected
+release. Dry-run reports are written under `build/publishMods/`.
+
 ## Receiving Upstream Updates
 
 Repositories created with GitHub's **Use this template** button do not share Git

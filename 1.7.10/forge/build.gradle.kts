@@ -11,6 +11,7 @@ val modGroup = rootProject.property("modGroupId").toString()
 val minecraftVersion = project.property("minecraftVersion").toString()
 configurePlatformArtifacts(
     loader = "forge",
+    javaVersion = 8,
     mainJarTaskName = "reobfJar",
     sourcesJarTaskName = "sourcesJar",
 )
