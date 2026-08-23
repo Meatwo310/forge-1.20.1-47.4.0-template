@@ -487,6 +487,14 @@ modPublishing {
 4. Create a GitHub Release with the `Release` workflow before running
    `Publish` for its tag.
 
+To run the Publish workflow:
+
+1. Open **Actions** > **Publish** > **Run workflow** on GitHub.
+2. Select the target GitHub Release tag from **Use workflow from**. Do not
+   select a branch.
+3. Choose the destination services and other publishing options, then run the
+   workflow.
+
 Artifact names, Minecraft versions, loader names, Java versions, optional
 sources jars, and convention-provided publishing dependencies are derived from
 each project's `platformArtifacts` metadata. `fabric-api-conventions` registers
