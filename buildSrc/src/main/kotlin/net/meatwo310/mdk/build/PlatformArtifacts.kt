@@ -15,6 +15,10 @@ abstract class PlatformArtifactsExtension {
     abstract val sourcesJarTaskName: Property<String>
     abstract val curseForgeDependencies: SetProperty<PublishedDependency>
     abstract val modrinthDependencies: SetProperty<PublishedDependency>
+
+    fun publishingDependencies(configure: PublishingDependenciesSpec.() -> Unit) {
+        PublishingDependenciesSpec(curseForgeDependencies, modrinthDependencies).configure()
+    }
 }
 
 enum class PublishedDependencyType {
@@ -28,6 +32,51 @@ data class PublishedDependency(
     val slug: String,
     val type: PublishedDependencyType,
 )
+
+class PublishingDependenciesSpec internal constructor(
+    private val curseForgeDependencies: SetProperty<PublishedDependency>,
+    private val modrinthDependencies: SetProperty<PublishedDependency>,
+) {
+    fun required(
+        slug: String? = null,
+        curseForgeSlug: String? = slug,
+        modrinthSlug: String? = slug,
+    ) = add(curseForgeSlug, modrinthSlug, PublishedDependencyType.REQUIRED)
+
+    fun optional(
+        slug: String? = null,
+        curseForgeSlug: String? = slug,
+        modrinthSlug: String? = slug,
+    ) = add(curseForgeSlug, modrinthSlug, PublishedDependencyType.OPTIONAL)
+
+    fun incompatible(
+        slug: String? = null,
+        curseForgeSlug: String? = slug,
+        modrinthSlug: String? = slug,
+    ) = add(curseForgeSlug, modrinthSlug, PublishedDependencyType.INCOMPATIBLE)
+
+    fun embedded(
+        slug: String? = null,
+        curseForgeSlug: String? = slug,
+        modrinthSlug: String? = slug,
+    ) = add(curseForgeSlug, modrinthSlug, PublishedDependencyType.EMBEDDED)
+
+    internal fun add(
+        curseForgeSlug: String?,
+        modrinthSlug: String?,
+        type: PublishedDependencyType,
+    ) {
+        if (curseForgeSlug == null && modrinthSlug == null) {
+            throw GradleException("A publishing dependency must provide a CurseForge or Modrinth slug")
+        }
+        curseForgeSlug?.let { slug ->
+            curseForgeDependencies.add(PublishedDependency(slug.validatedDependencySlug(), type))
+        }
+        modrinthSlug?.let { slug ->
+            modrinthDependencies.add(PublishedDependency(slug.validatedDependencySlug(), type))
+        }
+    }
+}
 
 data class PlatformArtifacts(
     val minecraftVersion: String,
@@ -110,34 +159,12 @@ fun Project.platformArtifacts(): PlatformArtifacts {
 }
 
 /**
- * Adds a dependency with the same slug to this platform artifact's CurseForge and Modrinth publications.
+ * Configures this project's existing platform artifact metadata.
  */
-fun Project.publishDependency(
-    slug: String,
-    type: PublishedDependencyType = PublishedDependencyType.REQUIRED,
-) = publishDependency(slug, slug, type)
-
-/**
- * Adds a dependency to either or both hosting sites for this platform artifact.
- *
- * Pass `null` for a site where the dependency should not be declared. At least one slug must be provided.
- */
-fun Project.publishDependency(
-    curseForgeSlug: String? = null,
-    modrinthSlug: String? = null,
-    type: PublishedDependencyType = PublishedDependencyType.REQUIRED,
-) {
+fun Project.platformArtifacts(configure: PlatformArtifactsExtension.() -> Unit) {
     val metadata = extensions.findByType(PlatformArtifactsExtension::class.java)
-        ?: throw GradleException("Project '$name' must configure platformArtifacts before publishing dependencies")
-    if (curseForgeSlug == null && modrinthSlug == null) {
-        throw GradleException("Project '$name' must provide a CurseForge or Modrinth dependency slug")
-    }
-    curseForgeSlug?.let { slug ->
-        metadata.curseForgeDependencies.add(PublishedDependency(slug.validatedDependencySlug(), type))
-    }
-    modrinthSlug?.let { slug ->
-        metadata.modrinthDependencies.add(PublishedDependency(slug.validatedDependencySlug(), type))
-    }
+        ?: throw GradleException("Project '$name' must configure platformArtifacts before configuring its metadata")
+    metadata.configure()
 }
 
 private fun Set<PublishedDependency>.sortedDependencies(): Set<PublishedDependency> =

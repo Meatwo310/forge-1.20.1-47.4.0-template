@@ -15,4 +15,7 @@ dependencies {
     implementation(libs.neoforged.moddev.gradle)
     implementation(libs.forgegradle.plugin)
     implementation(libs.fabric.loom)
+
+    testImplementation(gradleTestKit())
+    testImplementation(kotlin("test"))
 }
