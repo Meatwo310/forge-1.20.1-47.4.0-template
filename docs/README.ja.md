@@ -72,7 +72,7 @@ flowchart LR
 IntelliJ IDEAまたはGradleでプロジェクトを開いたりインポートしたりする前に、`settings.gradle.kts`を整理してください。含まれるプロジェクトが増えるほど、Gradleの設定処理とIDEのインポートに時間がかかります。最初に、使用しない`include(...)`行をコメントアウトしてください。
 
 1. GitHubで**Use this template**をクリックし、このテンプレートからリポジトリを作成します。
-2. テンプレートの更新を継続して取り込みたい場合は、通常の開発を始める前に[アップストリーム更新の受け取り](#アップストリーム更新の受け取り)を実施します。
+2. テンプレートの更新を継続して取り込みたい場合は、通常の開発を始める前に[上流更新の受け取り](#上流更新の受け取り)を実施します。
 3. `settings.gradle.kts`を編集し、使用しない`include(...)`行をコメントアウトして、Gradleの設定時間とキャッシュ使用量を減らします。
 4. `gradle.properties`でMod ID、名前、グループ、ライセンス、作者、URL、Fabricエントリーポイントを編集し、`version.txt`でModバージョンを編集します。
 5. 他のModとの競合を避けるため、共有設定システム内のものを含む、すべてのJavaパッケージ名を変更します。`Constants`、エントリーポイント、Mixin設定名、refmap名、言語アセット内の`examplemod`をMod IDに置き換えてください。
@@ -443,7 +443,7 @@ Publishワークフローの実行手順は次のとおりです。
 2. **Use workflow from**で対象のGitHub Releaseタグを選択します。ブランチは選択しないでください。
 3. 公開先サービスとその他の公開オプションを選択し、ワークフローを実行します。
 
-アーティファクト名、Minecraftバージョン、ローダー名、Javaバージョン、任意のsources jar、規約が提供する公開用依存関係は、各プロジェクトの`platformArtifacts`メタデータから取得されます。`fabric-api-conventions`はFabric APIを登録し、Fabricと新しいLexForgeの設定規約はForge Config API Portを登録します。
+アーティファクト名、Minecraftバージョン、ローダー名、Javaバージョン、任意のsources jar、規約が提供する公開用依存関係は、各プロジェクトの`platformArtifacts`メタデータから取得されます。`fabric-api-conventions`はFabric APIを登録し、FabricとモダンなLexForgeの設定規約はForge Config API Portを登録します。
 
 公開用依存関係は、CurseForgeとModrinthのプロジェクトページ上の関連付けです。Gradle依存関係、ランタイムへのインストール、ローダーメタデータは設定しません。これらは[依存関係](#依存関係)の説明に従って個別に設定してください。
 
@@ -485,9 +485,9 @@ platformArtifacts {
 
 `version.txt`と有効なプロジェクトが、選択したリリースと一致するチェックアウトを使用してください。ドライランのレポートは`build/publishMods/`に出力されます。
 
-## アップストリーム更新の受け取り
+## 上流更新の受け取り
 
-GitHubの**Use this template**ボタンで作成したリポジトリは、このテンプレートリポジトリとGit履歴を共有しません。テンプレートの更新を継続して取り込むには、通常の開発を始める前に、使用したテンプレートと一致するアップストリームコミットをダウンストリームの履歴へ接続します。
+GitHubの**Use this template**ボタンで作成したリポジトリは、このテンプレートリポジトリとGit履歴を共有しません。テンプレートの更新を継続して取り込むには、通常の開発を始める前に、使用したテンプレートと一致する上流コミットを下流の履歴へ接続します。
 
 このテンプレートリポジトリをupstreamリモートとして追加します。
 
@@ -496,16 +496,16 @@ git remote add upstream https://github.com/Meatwo310/custom-mdk.git
 git fetch upstream
 ```
 
-ダウンストリームリポジトリ作成時のテンプレートスナップショットとファイルが一致するアップストリームコミットを探します。現在のテンプレートから作成した場合、通常は`upstream/main`です。古いテンプレートスナップショットから作成した場合は、対応する古いアップストリームコミットを使用します。
+下流リポジトリ作成時のテンプレートスナップショットとファイルが一致する上流コミットを探します。現在のテンプレートから作成した場合、通常は`upstream/main`です。古いテンプレートスナップショットから作成した場合は、対応する古い上流コミットを使用します。
 
 ```sh
 upstream_snapshot=upstream/main
 git diff --quiet main "$upstream_snapshot"
 ```
 
-`git diff --quiet`コマンドは正常終了する必要があります。差分が報告された場合は、別のアップストリームコミットを選んで再確認してください。
+`git diff --quiet`コマンドは正常終了する必要があります。差分が報告された場合は、別の上流コミットを選んで再確認してください。
 
-次に、一致するアップストリームコミットを、作成直後のローカル`main`ブランチへマージします。
+次に、一致する上流コミットを、作成直後のローカル`main`ブランチへマージします。
 
 ```sh
 git switch main
@@ -514,7 +514,7 @@ git merge --allow-unrelated-histories --no-ff "$upstream_snapshot" \
 git push origin main
 ```
 
-これにより、ダウンストリームリポジトリの最初のコミットをマージの第1親として維持しながら、テンプレートリポジトリの履歴を第2親として接続します。結果の履歴は次のようになります。
+これにより、下流リポジトリの最初のコミットをマージの第1親として維持しながら、テンプレートリポジトリの履歴を第2親として接続します。結果の履歴は次のようになります。
 
 ```text
 *   <merge> (HEAD -> main) mdk: connect upstream history
@@ -525,7 +525,7 @@ git push origin main
 * <downstream-root> chore: first commit
 ```
 
-一致するスナップショットを接続した後、必要に応じて最新のアップストリームテンプレートをマージします。
+一致するスナップショットを接続した後、必要に応じて最新の上流テンプレートをマージします。
 
 ```sh
 git fetch upstream
@@ -533,9 +533,9 @@ git merge upstream/main
 ```
 
 <details>
-<summary>ダウンストリームでの開発をすでに始めている場合</summary>
+<summary>下流での開発をすでに始めている場合</summary>
 
-ダウンストリームにすでに変更があり、その履歴を書き換えられる場合は、ダウンストリームのルートコミットから新しいブランチを作成し、そこで対応するアップストリームスナップショットを接続してから、ダウンストリームのコミットをその上に再適用します。
+下流にすでに変更があり、その履歴を書き換えられる場合は、下流のルートコミットから新しいブランチを作成し、そこで対応する上流スナップショットを接続してから、下流のコミットをその上に再適用します。
 
 ```sh
 git switch main
@@ -550,7 +550,7 @@ git merge --allow-unrelated-histories --no-ff "$upstream_snapshot" \
 git cherry-pick --empty=drop "$downstream_snapshot"..downstream-before-template-sync
 ```
 
-Gitが競合を報告した場合は、競合を解消して、解消したファイルに`git add`を実行し、停止したコマンドに応じて`git merge --continue`または`git cherry-pick --continue`を実行します。テンプレートのデフォルトを意図的に置き換えたダウンストリーム固有の変更は維持し、ファイルが引き続きテンプレート管理下にある場合はアップストリームの変更を採用します。最初のマージで、変更されていない多数のテンプレートファイルにadd/add競合が発生する場合は、選択した`upstream_snapshot`がダウンストリームのテンプレートスナップショットと一致していない可能性があります。
+Gitが競合を報告した場合は、競合を解消して、解消したファイルに`git add`を実行し、停止したコマンドに応じて`git merge --continue`または`git cherry-pick --continue`を実行します。テンプレートのデフォルトを意図的に置き換えた下流固有の変更は維持し、ファイルが引き続きテンプレート管理下にある場合は上流の変更を採用します。最初のマージで、変更されていない多数のテンプレートファイルにadd/add競合が発生する場合は、選択した`upstream_snapshot`が下流のテンプレートスナップショットと一致していない可能性があります。
 
 結果が正しいことを確認したら、再適用済みの履歴で`main`を置き換えます。
 
@@ -560,7 +560,7 @@ git reset --hard template-sync
 git push --force-with-lease origin main
 ```
 
-pushしたブランチにダウンストリームの変更がすべて含まれていることを確認するまでは、`downstream-before-template-sync`を残してください。
+pushしたブランチに下流の変更がすべて含まれていることを確認するまでは、`downstream-before-template-sync`を残してください。
 
 </details>
 
@@ -573,7 +573,7 @@ git merge upstream/main
 
 競合を慎重に解消してから、マージをコミットします。
 
-アップストリーム更新をマージした後は、競合したファイルだけでなく、新しく追加されたファイルも確認します。
+上流更新をマージした後は、競合したファイルだけでなく、新しく追加されたファイルも確認します。
 
 - 新たに導入された`net.meatwo310.examplemod`パッケージ名をModの名前空間へ置き換えます。
 - 新しいサブプロジェクトは、その`include(...)`行が`settings.gradle.kts`へマージされるとデフォルトで有効になります。IDEへのインポート、ビルド、CIの実行前に、不要なプロジェクトの`include(...)`行をコメントアウトしてください。
