@@ -1,6 +1,5 @@
 package net.meatwo310.mdk.build
 
-import me.modmuss50.mpp.PlatformDependency.DependencyType
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginExtension
@@ -18,9 +17,16 @@ abstract class PlatformArtifactsExtension {
     abstract val modrinthDependencies: SetProperty<PublishedDependency>
 }
 
+enum class PublishedDependencyType {
+    REQUIRED,
+    OPTIONAL,
+    INCOMPATIBLE,
+    EMBEDDED,
+}
+
 data class PublishedDependency(
     val slug: String,
-    val type: DependencyType,
+    val type: PublishedDependencyType,
 )
 
 data class PlatformArtifacts(
@@ -108,7 +114,7 @@ fun Project.platformArtifacts(): PlatformArtifacts {
  */
 fun Project.publishDependency(
     slug: String,
-    type: DependencyType = DependencyType.REQUIRED,
+    type: PublishedDependencyType = PublishedDependencyType.REQUIRED,
 ) = publishDependency(slug, slug, type)
 
 /**
@@ -119,7 +125,7 @@ fun Project.publishDependency(
 fun Project.publishDependency(
     curseForgeSlug: String? = null,
     modrinthSlug: String? = null,
-    type: DependencyType = DependencyType.REQUIRED,
+    type: PublishedDependencyType = PublishedDependencyType.REQUIRED,
 ) {
     val metadata = extensions.findByType(PlatformArtifactsExtension::class.java)
         ?: throw GradleException("Project '$name' must configure platformArtifacts before publishing dependencies")

@@ -1,5 +1,4 @@
 import me.modmuss50.mpp.ModPublishExtension
-import me.modmuss50.mpp.PlatformDependency.DependencyType
 import me.modmuss50.mpp.PublishModTask
 import me.modmuss50.mpp.ReleaseType
 import me.modmuss50.mpp.platforms.curseforge.CurseforgeOptions
@@ -7,6 +6,7 @@ import me.modmuss50.mpp.platforms.modrinth.ModrinthOptions
 import net.meatwo310.mdk.build.DownloadGitHubRelease
 import net.meatwo310.mdk.build.ModPublishingExtension
 import net.meatwo310.mdk.build.PublishedDependency
+import net.meatwo310.mdk.build.PublishedDependencyType
 import net.meatwo310.mdk.build.platformArtifacts
 
 plugins {
@@ -37,10 +37,10 @@ data class PublishTarget(
 fun CurseforgeOptions.addDependencies(dependencies: Set<PublishedDependency>) {
     for (dependency in dependencies) {
         when (dependency.type) {
-            DependencyType.REQUIRED -> requires(dependency.slug)
-            DependencyType.OPTIONAL -> optional(dependency.slug)
-            DependencyType.INCOMPATIBLE -> incompatible(dependency.slug)
-            DependencyType.EMBEDDED -> embeds(dependency.slug)
+            PublishedDependencyType.REQUIRED -> requires(dependency.slug)
+            PublishedDependencyType.OPTIONAL -> optional(dependency.slug)
+            PublishedDependencyType.INCOMPATIBLE -> incompatible(dependency.slug)
+            PublishedDependencyType.EMBEDDED -> embeds(dependency.slug)
         }
     }
 }
@@ -48,10 +48,10 @@ fun CurseforgeOptions.addDependencies(dependencies: Set<PublishedDependency>) {
 fun ModrinthOptions.addDependencies(dependencies: Set<PublishedDependency>) {
     for (dependency in dependencies) {
         when (dependency.type) {
-            DependencyType.REQUIRED -> requires(dependency.slug)
-            DependencyType.OPTIONAL -> optional(dependency.slug)
-            DependencyType.INCOMPATIBLE -> incompatible(dependency.slug)
-            DependencyType.EMBEDDED -> embeds(dependency.slug)
+            PublishedDependencyType.REQUIRED -> requires(dependency.slug)
+            PublishedDependencyType.OPTIONAL -> optional(dependency.slug)
+            PublishedDependencyType.INCOMPATIBLE -> incompatible(dependency.slug)
+            PublishedDependencyType.EMBEDDED -> embeds(dependency.slug)
         }
     }
 }

@@ -495,7 +495,7 @@ Forge Config API Port. A project-specific convention or build script can add
 another required dependency without editing the publish workflow:
 
 ```kotlin
-import me.modmuss50.mpp.PlatformDependency.DependencyType.OPTIONAL
+import net.meatwo310.mdk.build.PublishedDependencyType.OPTIONAL
 import net.meatwo310.mdk.build.publishDependency
 
 publishDependency(
