@@ -476,14 +476,16 @@ modPublishing {
 }
 ```
 
-1. Uncomment and fill each `projectId` you use in the root
-   `build.gradle.kts` `modPublishing` block.
-2. Review CurseForge's `client` and `server` flags and Modrinth's typed
-   `environment` value in the same block. These describe where the mod can be
-   installed; they cannot be inferred reliably from loader build settings. In
-   particular, Modrinth distinguishes `CLIENT_AND_SERVER` (required on both
-   sides) from `CLIENT_OR_SERVER` (installable on either side independently).
-3. Add `CURSEFORGE_TOKEN` and `MODRINTH_TOKEN` as GitHub repository secrets.
+1. In the root `build.gradle.kts` `modPublishing` block, uncomment and fill the
+   `projectId` for each destination service you plan to select.
+2. For each selected service, review CurseForge's `client` and `server` flags
+   or Modrinth's typed `environment` value in the same block. These describe
+   where the mod can be installed; they cannot be inferred reliably from loader
+   build settings. In particular, Modrinth distinguishes `CLIENT_AND_SERVER`
+   (required on both sides) from `CLIENT_OR_SERVER` (installable on either side
+   independently).
+3. For a non-dry-run publish, add the GitHub repository secret required by each
+   selected service: `CURSEFORGE_TOKEN` and/or `MODRINTH_TOKEN`.
 4. Create a GitHub Release with the `Release` workflow before running
    `Publish` for its tag.
 
