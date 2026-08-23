@@ -15,6 +15,10 @@ abstract class PlatformArtifactsExtension {
     abstract val sourcesJarTaskName: Property<String>
     abstract val curseForgeDependencies: SetProperty<PublishedDependency>
     abstract val modrinthDependencies: SetProperty<PublishedDependency>
+
+    fun publishingDependencies(configure: PublishingDependenciesSpec.() -> Unit) {
+        PublishingDependenciesSpec(curseForgeDependencies, modrinthDependencies).configure()
+    }
 }
 
 enum class PublishedDependencyType {
@@ -28,6 +32,56 @@ data class PublishedDependency(
     val slug: String,
     val type: PublishedDependencyType,
 )
+
+class PublishingDependencySlugs {
+    var curseForge: String? = null
+    var modrinth: String? = null
+}
+
+class PublishingDependenciesSpec internal constructor(
+    private val curseForgeDependencies: SetProperty<PublishedDependency>,
+    private val modrinthDependencies: SetProperty<PublishedDependency>,
+) {
+    fun required(slug: String) = add(slug, slug, PublishedDependencyType.REQUIRED)
+    fun required(configure: PublishingDependencySlugs.() -> Unit) =
+        add(configure, PublishedDependencyType.REQUIRED)
+
+    fun optional(slug: String) = add(slug, slug, PublishedDependencyType.OPTIONAL)
+    fun optional(configure: PublishingDependencySlugs.() -> Unit) =
+        add(configure, PublishedDependencyType.OPTIONAL)
+
+    fun incompatible(slug: String) = add(slug, slug, PublishedDependencyType.INCOMPATIBLE)
+    fun incompatible(configure: PublishingDependencySlugs.() -> Unit) =
+        add(configure, PublishedDependencyType.INCOMPATIBLE)
+
+    fun embedded(slug: String) = add(slug, slug, PublishedDependencyType.EMBEDDED)
+    fun embedded(configure: PublishingDependencySlugs.() -> Unit) =
+        add(configure, PublishedDependencyType.EMBEDDED)
+
+    private fun add(
+        configure: PublishingDependencySlugs.() -> Unit,
+        type: PublishedDependencyType,
+    ) {
+        val slugs = PublishingDependencySlugs().apply(configure)
+        if (slugs.curseForge == null && slugs.modrinth == null) {
+            throw GradleException("At least one publishing slug must be specified")
+        }
+        add(slugs.curseForge, slugs.modrinth, type)
+    }
+
+    private fun add(
+        curseForgeSlug: String?,
+        modrinthSlug: String?,
+        type: PublishedDependencyType,
+    ) {
+        curseForgeSlug?.let { slug ->
+            curseForgeDependencies.add(PublishedDependency(slug.validatedDependencySlug(), type))
+        }
+        modrinthSlug?.let { slug ->
+            modrinthDependencies.add(PublishedDependency(slug.validatedDependencySlug(), type))
+        }
+    }
+}
 
 data class PlatformArtifacts(
     val minecraftVersion: String,
@@ -110,34 +164,12 @@ fun Project.platformArtifacts(): PlatformArtifacts {
 }
 
 /**
- * Adds a dependency with the same slug to this platform artifact's CurseForge and Modrinth publications.
+ * Configures this project's existing platform artifact metadata.
  */
-fun Project.publishDependency(
-    slug: String,
-    type: PublishedDependencyType = PublishedDependencyType.REQUIRED,
-) = publishDependency(slug, slug, type)
-
-/**
- * Adds a dependency to either or both hosting sites for this platform artifact.
- *
- * Pass `null` for a site where the dependency should not be declared. At least one slug must be provided.
- */
-fun Project.publishDependency(
-    curseForgeSlug: String? = null,
-    modrinthSlug: String? = null,
-    type: PublishedDependencyType = PublishedDependencyType.REQUIRED,
-) {
+fun Project.platformArtifacts(configure: PlatformArtifactsExtension.() -> Unit) {
     val metadata = extensions.findByType(PlatformArtifactsExtension::class.java)
-        ?: throw GradleException("Project '$name' must configure platformArtifacts before publishing dependencies")
-    if (curseForgeSlug == null && modrinthSlug == null) {
-        throw GradleException("Project '$name' must provide a CurseForge or Modrinth dependency slug")
-    }
-    curseForgeSlug?.let { slug ->
-        metadata.curseForgeDependencies.add(PublishedDependency(slug.validatedDependencySlug(), type))
-    }
-    modrinthSlug?.let { slug ->
-        metadata.modrinthDependencies.add(PublishedDependency(slug.validatedDependencySlug(), type))
-    }
+        ?: throw GradleException("Project '$name' must configure platformArtifacts before configuring its metadata")
+    metadata.configure()
 }
 
 private fun Set<PublishedDependency>.sortedDependencies(): Set<PublishedDependency> =

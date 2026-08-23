@@ -19,7 +19,11 @@ fun Project.configureFabricConfigConvention(
     versionConfigSourceSet: VersionConfigSourceSet,
 ) {
     plugins.withId("fabric-mod-conventions") {
-        publishDependency("forge-config-api-port")
+        platformArtifacts {
+            publishingDependencies {
+                required("forge-config-api-port")
+            }
+        }
         extensions.configure<FabricModMetadataExtension>("fabricModMetadata") {
             depend("forgeconfigapiport", ">=$forgeConfigApiPortVersion")
         }
