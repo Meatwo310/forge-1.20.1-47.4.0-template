@@ -42,6 +42,10 @@ Gradle dependencies and production loader metadata are separate.
   `src/main/templates/META-INF/mods.toml`.
 - Add NeoForge production dependencies in
   `src/main/templates/META-INF/neoforge.mods.toml`.
+- Add CurseForge and Modrinth project-page relations under
+  `platformArtifacts { publishingDependencies { ... } }` in each affected
+  platform subproject or a convention applied to those subprojects. These
+  relations do not change Gradle dependencies or loader metadata.
 - Do not mark soft integrations as required metadata.
 
 ## Verification
