@@ -3,19 +3,16 @@ name: Publish
 on:
   workflow_dispatch:
     inputs:
-      tag:
-        description: GitHub Release tag to publish
+      curseforge:
+        description: Publish to CurseForge
         required: true
-        type: string
-      destination:
-        description: Destination service
+        default: true
+        type: boolean
+      modrinth:
+        description: Publish to Modrinth
         required: true
-        default: both
-        type: choice
-        options:
-          - both
-          - curseforge
-          - modrinth
+        default: true
+        type: boolean
       release_type:
         description: Release type
         required: true
@@ -26,11 +23,11 @@ on:
           - beta
           - alpha
       projects:
-        description: Comma-separated Gradle projects; empty publishes all
+        description: Gradle projects to publish (comma-separated). Leave blank for all.
         required: false
         type: string
       dry_run:
-        description: Prepare and inspect files without uploading
+        description: Dry run (prepare files and a report without uploading)
         required: true
         default: true
         type: boolean
@@ -39,7 +36,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: publish-${{ inputs.tag }}
+  group: publish-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -47,6 +44,38 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      - name: Validate destinations
+        env:
+          PUBLISH_CURSEFORGE: ${{ inputs.curseforge }}
+          PUBLISH_MODRINTH: ${{ inputs.modrinth }}
+        run: |
+          case "$PUBLISH_CURSEFORGE:$PUBLISH_MODRINTH" in
+            true:true) PUBLISH_DESTINATION=both ;;
+            true:false) PUBLISH_DESTINATION=curseforge ;;
+            false:true) PUBLISH_DESTINATION=modrinth ;;
+            *)
+              echo "::error::Select at least one destination: CurseForge or Modrinth."
+              exit 1
+              ;;
+          esac
+          echo "PUBLISH_DESTINATION=$PUBLISH_DESTINATION" >> "$GITHUB_ENV"
+
+      - name: Validate selected GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLISH_TAG: ${{ github.ref_name }}
+        run: |
+          if [[ "$GITHUB_REF_TYPE" != tag ]]; then
+            echo "::error::Select a release tag in the 'Use workflow from' picker."
+            exit 1
+          fi
+          if ! gh release view "$PUBLISH_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null; then
+            echo "::error::GitHub Release '$PUBLISH_TAG' was not found."
+            exit 1
+          fi
+          echo "PUBLISH_TAG=$PUBLISH_TAG" >> "$GITHUB_ENV"
+          echo "Publishing GitHub Release: $PUBLISH_TAG" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Checkout repository
         uses: actions/checkout@v7
 
@@ -64,8 +93,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-          PUBLISH_TAG: ${{ inputs.tag }}
-          PUBLISH_DESTINATION: ${{ inputs.destination }}
           PUBLISH_RELEASE_TYPE: ${{ inputs.release_type }}
           PUBLISH_PROJECTS: ${{ inputs.projects }}
           PUBLISH_DRY_RUN: ${{ inputs.dry_run }}
@@ -84,9 +111,9 @@ jobs:
           ./gradlew --no-daemon --continue publishMods "${publish_args[@]}"
 
       - name: Upload dry-run report
-        if: ${{ !cancelled() && inputs.dry_run }}
+        if: ${{ !cancelled() && inputs.dry_run && hashFiles('build/publishMods/**') != '' }}
         uses: actions/upload-artifact@v7
         with:
-          name: publish-dry-run-${{ inputs.tag }}
+          name: publish-dry-run-${{ env.PUBLISH_TAG }}
           path: build/publishMods/
           if-no-files-found: error
