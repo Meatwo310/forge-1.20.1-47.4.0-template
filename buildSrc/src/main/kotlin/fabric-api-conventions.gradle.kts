@@ -6,7 +6,11 @@ val minecraftVersion = project.property("minecraftVersion").toString()
 val fabricApiVersion = project.property("fabricApiVersion").toString()
 
 plugins.withId("fabric-mod-conventions") {
-    publishDependency("fabric-api")
+    platformArtifacts {
+        publishingDependencies {
+            required("fabric-api")
+        }
+    }
     extensions.configure<FabricModMetadataExtension>("fabricModMetadata") {
         depend("fabric-api", "*")
     }
