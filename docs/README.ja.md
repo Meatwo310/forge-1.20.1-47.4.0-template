@@ -159,14 +159,20 @@ dependencies {
 }
 ```
 
-依存関係が必要な用途に応じて、設定を選択します。
+コンパイルとローカル実行の設定は、ターゲットに応じて選択します。
 
-| 用途 | Fabric 1.21.11以前 | Fabric 26.1以降 | LexForge Legacy | LexForge | NeoForge |
-|------|---------------------|------------------|-----------------|----------|----------|
-| コードが依存先のクラスをimportする | `modImplementation(...)` | `implementation(...)` | `implementation(...)` | `implementation(...)` | `implementation(...)` |
-| ローカルの`runClient` / `runServer`のみ | `modRuntimeOnly(...)` | `runtimeOnly(...)` | `modRuntimeOnly(...)` | `runtimeOnly(...)` | `runtimeOnly(...)` |
-| GitHub Actionsのランタイムテストでjarをインストールする | `ciRuntimeMods(...)` | `ciRuntimeMods(...)` | `ciRuntimeMods(...)` | `ciRuntimeMods(...)` | `ciRuntimeMods(...)` |
-| コードからimportし、CIでもインストールする | コンパイル依存関係と`ciRuntimeMods(...)` | コンパイル依存関係と`ciRuntimeMods(...)` | コンパイル依存関係と`ciRuntimeMods(...)` | コンパイル依存関係と`ciRuntimeMods(...)` | コンパイル依存関係と`ciRuntimeMods(...)` |
+| ターゲット | コードが依存先のクラスをimportする | ローカルの`runClient` / `runServer`のみ |
+|------------|-------------------------------------|------------------------------------------|
+| Fabric 1.21.11以前 | `modImplementation(...)` | `modRuntimeOnly(...)` |
+| LexForge Legacy | `implementation(...)` | `modRuntimeOnly(...)` |
+| Fabric 26.1以降、LexForge、NeoForge | `implementation(...)` | `runtimeOnly(...)` |
+
+CIランタイムへの配置方法は、すべてのターゲットで共通です。
+
+| 用途 | 宣言 |
+|------|------|
+| GitHub Actionsのランタイムテストでjarをインストールする | `ciRuntimeMods(...)` |
+| コードからimportし、CIでもインストールする | 上表のコンパイル依存関係と`ciRuntimeMods(...)` |
 
 `ciRuntimeMods`はローカルの`runClient` / `runServer`クラスパスには影響しません。GitHub Actionsのランタイムテスト用に、直接指定されたjarファイルを各設定済みプロジェクトディレクトリの`build/ciRuntimeMods`へ配置するだけです。本番用ローダーメタデータも別に管理されます。リリースしたModの利用者が依存関係をインストールする必要がある場合に限り、Fabricの`depends`、LexForgeの`mods.toml`依存関係、またはNeoForgeの`neoforge.mods.toml`依存関係を追加してください。
 
@@ -257,47 +263,47 @@ import java.util.List;
 public final class ServerConfig {
     private static final ConfigEntryBuilder BUILDER = new ConfigEntryBuilder();
 
-    public static final ConfigEntry.BooleanEntry ENABLE_FEATURE =
-            BUILDER.comment("Enable the main server feature.")
-                    .define("enableFeature", true);
+    public static final ConfigEntry.BooleanEntry ENABLE_FEATURE = BUILDER
+            .comment("Enable the main server feature.")
+            .define("enableFeature", true);
 
-    public static final ConfigEntry.IntEntry MAX_STORED_ITEMS =
-            BUILDER.comment("Maximum number of stored items.")
-                    .defineInRange("maxStoredItems", 64, 1, 4096);
+    public static final ConfigEntry.IntEntry MAX_STORED_ITEMS = BUILDER
+            .comment("Maximum number of stored items.")
+            .defineInRange("maxStoredItems", 64, 1, 4096);
 
-    public static final ConfigEntry.ListEntry<String> ALLOWED_ITEMS =
-            BUILDER.comment("Item ids accepted by the feature.")
-                    .defineList(
-                            "allowedItems",
-                            List.of("minecraft:stone"),
-                            () -> "minecraft:stone",
-                            value -> value instanceof String);
+    public static final ConfigEntry.ListEntry<String> ALLOWED_ITEMS = BUILDER
+            .comment("Item ids accepted by the feature.")
+            .defineList(
+                    "allowedItems",
+                    List.of("minecraft:stone"),
+                    () -> "minecraft:stone",
+                    value -> value instanceof String);
 
-    public static final ConfigEntries ADVANCED =
-            BUILDER.comment("Advanced server settings.")
-                    .category("advanced", Advanced.ENTRIES);
+    public static final ConfigEntries ADVANCED = BUILDER
+            .comment("Advanced server settings.")
+            .category("advanced", Advanced.ENTRIES);
 
     public static final class Advanced {
         private static final ConfigEntryBuilder BUILDER = new ConfigEntryBuilder();
 
-        public static final ConfigEntry.BooleanEntry ENABLE_DEBUG_LOG =
-                BUILDER.comment("Enable additional debug logging.")
-                        .define("enableDebugLog", false);
+        public static final ConfigEntry.BooleanEntry ENABLE_DEBUG_LOG = BUILDER
+                .comment("Enable additional debug logging.")
+                .define("enableDebugLog", false);
 
-        public static final ConfigEntry.DoubleEntry SPAWN_RATE_MULTIPLIER =
-                BUILDER.comment("Multiplier applied to spawn rate.")
-                        .defineInRange("spawnRateMultiplier", 1.0D, 0.0D, 10.0D);
+        public static final ConfigEntry.DoubleEntry SPAWN_RATE_MULTIPLIER = BUILDER
+                .comment("Multiplier applied to spawn rate.")
+                .defineInRange("spawnRateMultiplier", 1.0D, 0.0D, 10.0D);
 
-        public static final ConfigEntries PERFORMANCE =
-                BUILDER.comment("Performance tuning.")
-                        .category("performance", Performance.ENTRIES);
+        public static final ConfigEntries PERFORMANCE = BUILDER
+                .comment("Performance tuning.")
+                .category("performance", Performance.ENTRIES);
 
         public static final class Performance {
             private static final ConfigEntryBuilder BUILDER = new ConfigEntryBuilder();
 
-            public static final ConfigEntry.IntEntry CACHE_SIZE =
-                    BUILDER.comment("Maximum cache size.")
-                            .defineInRange("cacheSize", 256, 0, 8192);
+            public static final ConfigEntry.IntEntry CACHE_SIZE = BUILDER
+                    .comment("Maximum cache size.")
+                    .defineInRange("cacheSize", 256, 0, 8192);
 
             public static final ConfigEntries ENTRIES = BUILDER.build();
         }
@@ -353,7 +359,7 @@ if (ServerConfig.ENABLE_FEATURE.getAsBoolean()) {
 |------------|--------------------|----------|------------------------|
 | NeoForgeプラットフォーム | ローダーに含まれるNeoForge設定API | `ModContainer#registerConfig` | なし。設定画面はNeoForgeが直接提供します |
 | LexForge Legacyプラットフォーム | ローダーに含まれるForge設定API | `ModLoadingContext` / `FMLJavaModLoadingContext` | [Configured](https://www.curseforge.com/minecraft/mc-mods/configured)または[Forge Config Screens](https://modrinth.com/mod/forge-config-screens) |
-| LexForgeプラットフォーム | Forge Config API Port | Forge Config API Portレジストリー | 同梱なし |
+| LexForgeプラットフォーム | Forge Config API Port | Forge Config API Portレジストリー | [Configured](https://www.curseforge.com/minecraft/mc-mods/configured)。Forge Config API Portに設定画面は同梱されません |
 | Fabricプラットフォーム | Minecraftバージョンごとに宣言するForge Config API Port | Forge Config API Portレジストリー | Mod一覧の項目には[ModMenu](https://modrinth.com/mod/modmenu/)、mc1.20.1以前では[Forge Config Screens](https://modrinth.com/mod/forge-config-screens) |
 
 この仕組みにより、同じ`ConfigDeclaration`リストを`common`から共有し、バージョン固有のcommonプロジェクトで拡張したうえで、各プラットフォームが実際に使用する依存関係へ結び付けられます。
@@ -434,7 +440,7 @@ modPublishing {
 
 1. ルート`build.gradle.kts`の`modPublishing`ブロックで、公開先として選ぶ各サービスの`projectId`をコメント解除して入力します。
 2. 選択する各サービスについて、同じブロック内のCurseForgeの`client`・`server`フラグ、またはModrinthの型付き`environment`値を確認します。これらはModをインストールできる環境を示し、ローダーのビルド設定から確実に推測することはできません。特にModrinthでは、`CLIENT_AND_SERVER`（両側に必要）と`CLIENT_OR_SERVER`（どちらか片側だけでもインストール可能）を区別します。
-3. ドライランではなく公開する場合は、選択するサービスに必要なGitHubリポジトリシークレット`CURSEFORGE_TOKEN`、`MODRINTH_TOKEN`の一方または両方を追加します。
+3. ドライランではなく公開する場合は、選択するサービスに必要な[GitHub Actionsのリポジトリシークレット](https://docs.github.com/ja/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets#creating-secrets-for-a-repository)として、`CURSEFORGE_TOKEN`、`MODRINTH_TOKEN`の一方または両方を追加します。
 4. 対象タグのPublishを実行する前に、ReleaseワークフローでGitHub Releaseを作成します。
 
 Publishワークフローの実行手順は次のとおりです。
@@ -489,7 +495,7 @@ platformArtifacts {
 
 GitHubの**Use this template**ボタンで作成したリポジトリは、このテンプレートリポジトリとGit履歴を共有しません。テンプレートの更新を継続して取り込むには、通常の開発を始める前に、使用したテンプレートと一致する上流コミットを下流の履歴へ接続します。
 
-このテンプレートリポジトリをupstreamリモートとして追加します。
+このテンプレートリポジトリを`upstream`リモートとして追加します。
 
 ```sh
 git remote add upstream https://github.com/Meatwo310/custom-mdk.git

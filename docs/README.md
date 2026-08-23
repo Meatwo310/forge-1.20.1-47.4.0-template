@@ -169,14 +169,20 @@ dependencies {
 }
 ```
 
-Choose the dependency configuration by what needs the dependency:
+Choose compile and local runtime configurations by target:
 
-| Need | Fabric 1.21.11 and older | Fabric 26.1 and newer | LexForge Legacy | LexForge | NeoForge |
-|------|---------------------------|------------------------|-----------------|----------|----------|
-| Code imports dependency classes | `modImplementation(...)` | `implementation(...)` | `implementation(...)` | `implementation(...)` | `implementation(...)` |
-| Local `runClient` / `runServer` only | `modRuntimeOnly(...)` | `runtimeOnly(...)` | `modRuntimeOnly(...)` | `runtimeOnly(...)` | `runtimeOnly(...)` |
-| GitHub Actions runtime test must install the jar | `ciRuntimeMods(...)` | `ciRuntimeMods(...)` | `ciRuntimeMods(...)` | `ciRuntimeMods(...)` | `ciRuntimeMods(...)` |
-| Code imports it and CI must install it | compile dependency plus `ciRuntimeMods(...)` | compile dependency plus `ciRuntimeMods(...)` | compile dependency plus `ciRuntimeMods(...)` | compile dependency plus `ciRuntimeMods(...)` | compile dependency plus `ciRuntimeMods(...)` |
+| Target | Code imports dependency classes | Local `runClient` / `runServer` only |
+|--------|---------------------------------|----------------------------------------|
+| Fabric 1.21.11 and older | `modImplementation(...)` | `modRuntimeOnly(...)` |
+| LexForge Legacy | `implementation(...)` | `modRuntimeOnly(...)` |
+| Fabric 26.1 and newer, LexForge, NeoForge | `implementation(...)` | `runtimeOnly(...)` |
+
+CI runtime staging is the same for every target:
+
+| Need | Declaration |
+|------|-------------|
+| GitHub Actions runtime test must install the jar | `ciRuntimeMods(...)` |
+| Code imports it and CI must install it | Compile dependency from the table above plus `ciRuntimeMods(...)` |
 
 `ciRuntimeMods` does not affect local `runClient` / `runServer` classpaths. It only stages direct jar
 files into each configured project directory's `build/ciRuntimeMods` for the GitHub Actions runtime
@@ -292,47 +298,47 @@ import java.util.List;
 public final class ServerConfig {
     private static final ConfigEntryBuilder BUILDER = new ConfigEntryBuilder();
 
-    public static final ConfigEntry.BooleanEntry ENABLE_FEATURE =
-            BUILDER.comment("Enable the main server feature.")
-                    .define("enableFeature", true);
+    public static final ConfigEntry.BooleanEntry ENABLE_FEATURE = BUILDER
+            .comment("Enable the main server feature.")
+            .define("enableFeature", true);
 
-    public static final ConfigEntry.IntEntry MAX_STORED_ITEMS =
-            BUILDER.comment("Maximum number of stored items.")
-                    .defineInRange("maxStoredItems", 64, 1, 4096);
+    public static final ConfigEntry.IntEntry MAX_STORED_ITEMS = BUILDER
+            .comment("Maximum number of stored items.")
+            .defineInRange("maxStoredItems", 64, 1, 4096);
 
-    public static final ConfigEntry.ListEntry<String> ALLOWED_ITEMS =
-            BUILDER.comment("Item ids accepted by the feature.")
-                    .defineList(
-                            "allowedItems",
-                            List.of("minecraft:stone"),
-                            () -> "minecraft:stone",
-                            value -> value instanceof String);
+    public static final ConfigEntry.ListEntry<String> ALLOWED_ITEMS = BUILDER
+            .comment("Item ids accepted by the feature.")
+            .defineList(
+                    "allowedItems",
+                    List.of("minecraft:stone"),
+                    () -> "minecraft:stone",
+                    value -> value instanceof String);
 
-    public static final ConfigEntries ADVANCED =
-            BUILDER.comment("Advanced server settings.")
-                    .category("advanced", Advanced.ENTRIES);
+    public static final ConfigEntries ADVANCED = BUILDER
+            .comment("Advanced server settings.")
+            .category("advanced", Advanced.ENTRIES);
 
     public static final class Advanced {
         private static final ConfigEntryBuilder BUILDER = new ConfigEntryBuilder();
 
-        public static final ConfigEntry.BooleanEntry ENABLE_DEBUG_LOG =
-                BUILDER.comment("Enable additional debug logging.")
-                        .define("enableDebugLog", false);
+        public static final ConfigEntry.BooleanEntry ENABLE_DEBUG_LOG = BUILDER
+                .comment("Enable additional debug logging.")
+                .define("enableDebugLog", false);
 
-        public static final ConfigEntry.DoubleEntry SPAWN_RATE_MULTIPLIER =
-                BUILDER.comment("Multiplier applied to spawn rate.")
-                        .defineInRange("spawnRateMultiplier", 1.0D, 0.0D, 10.0D);
+        public static final ConfigEntry.DoubleEntry SPAWN_RATE_MULTIPLIER = BUILDER
+                .comment("Multiplier applied to spawn rate.")
+                .defineInRange("spawnRateMultiplier", 1.0D, 0.0D, 10.0D);
 
-        public static final ConfigEntries PERFORMANCE =
-                BUILDER.comment("Performance tuning.")
-                        .category("performance", Performance.ENTRIES);
+        public static final ConfigEntries PERFORMANCE = BUILDER
+                .comment("Performance tuning.")
+                .category("performance", Performance.ENTRIES);
 
         public static final class Performance {
             private static final ConfigEntryBuilder BUILDER = new ConfigEntryBuilder();
 
-            public static final ConfigEntry.IntEntry CACHE_SIZE =
-                    BUILDER.comment("Maximum cache size.")
-                            .defineInRange("cacheSize", 256, 0, 8192);
+            public static final ConfigEntry.IntEntry CACHE_SIZE = BUILDER
+                    .comment("Maximum cache size.")
+                    .defineInRange("cacheSize", 256, 0, 8192);
 
             public static final ConfigEntries ENTRIES = BUILDER.build();
         }
@@ -388,7 +394,7 @@ The common config declarations are loader-neutral. Each platform provides the de
 |------------------------|-------------------------------------------------------|--------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
 | NeoForge platforms     | NeoForge config API from the loader                   | `ModContainer#registerConfig`                    | none; the config screen is provided by NeoForge directly                                                                                                 |
 | LexForge Legacy platforms | Forge config API from the loader                   | `ModLoadingContext` / `FMLJavaModLoadingContext` | [Configured](https://www.curseforge.com/minecraft/mc-mods/configured) or [Forge Config Screens](https://modrinth.com/mod/forge-config-screens)           |
-| LexForge platforms     | Forge Config API Port                                | Forge Config API Port registry                   | none bundled                                                                                                                                            |
+| LexForge platforms     | Forge Config API Port                                | Forge Config API Port registry                   | [Configured](https://www.curseforge.com/minecraft/mc-mods/configured); Forge Config API Port does not bundle a screen                                    |
 | Fabric platforms       | Forge Config API Port, declared per Minecraft version | Forge Config API Port registry                   | [ModMenu](https://modrinth.com/mod/modmenu/) for the mod list entry; [Forge Config Screens](https://modrinth.com/mod/forge-config-screens) on <=mc1.20.1 |
 
 Because of this, the same `ConfigDeclaration` list can be shared from `common`, extended by a version-specific common project, and then bound by each platform to the dependency it actually runs with.
@@ -486,8 +492,9 @@ modPublishing {
    build settings. In particular, Modrinth distinguishes `CLIENT_AND_SERVER`
    (required on both sides) from `CLIENT_OR_SERVER` (installable on either side
    independently).
-3. For a non-dry-run publish, add the GitHub repository secret required by each
-   selected service: `CURSEFORGE_TOKEN` and/or `MODRINTH_TOKEN`.
+3. For a non-dry-run publish, add the [GitHub Actions repository secret](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets#creating-secrets-for-a-repository)
+   required by each selected service: `CURSEFORGE_TOKEN` and/or
+   `MODRINTH_TOKEN`.
 4. Create a GitHub Release with the `Release` workflow before running
    `Publish` for its tag.
 
@@ -563,7 +570,7 @@ history with this template repository. If you want to keep receiving upstream
 template updates, connect the matching upstream template commit to your
 downstream history before you start regular development.
 
-Add this template repository as an upstream remote:
+Add this template repository as an `upstream` remote:
 
 ```sh
 git remote add upstream https://github.com/Meatwo310/custom-mdk.git
