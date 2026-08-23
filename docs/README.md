@@ -501,23 +501,40 @@ Artifact names, Minecraft versions, loader names, Java versions, optional
 sources jars, and convention-provided publishing dependencies are derived from
 each project's `platformArtifacts` metadata. `fabric-api-conventions` registers
 Fabric API, while the Fabric and modern LexForge config conventions register
-Forge Config API Port. A project-specific convention or build script can add
-another required dependency without editing the publish workflow:
+Forge Config API Port.
+
+Publishing dependencies are CurseForge and Modrinth project-page relations.
+They do not configure Gradle dependencies, runtime installation, or loader
+metadata; configure those separately as described in [Dependencies](#dependencies).
+
+Declare relations under `platformArtifacts` at the top level of each affected
+platform subproject's `build.gradle.kts`. Platform convention plugins create the
+extension automatically; in the 1.7.10 project, place the block after
+`configurePlatformArtifacts`.
+
+Pass one slug when both services use the same value. Use a configuration block
+when the slugs differ or the relation applies to only one service:
 
 ```kotlin
-import net.meatwo310.mdk.build.PublishedDependencyType.OPTIONAL
-import net.meatwo310.mdk.build.publishDependency
+import net.meatwo310.mdk.build.platformArtifacts
 
-publishDependency(
-    curseForgeSlug = "dependency-curseforge-slug",
-    modrinthSlug = "dependency-modrinth-slug",
-    type = OPTIONAL,
-)
-
-publishDependency(
-    modrinthSlug = "modrinth-only-dependency",
-)
+platformArtifacts {
+    publishingDependencies {
+        required("same-slug-on-both-services")
+        optional {
+            curseForge = "dependency-curseforge-slug"
+            modrinth = "dependency-modrinth-slug"
+        }
+        required {
+            modrinth = "modrinth-only-dependency"
+        }
+    }
+}
 ```
+
+Available relation types are `required`, `optional`, `incompatible`, and
+`embedded`. `embedded` declares that the dependency is already included; it
+does not package the dependency into the artifact.
 
 To inspect one target locally without uploading, run:
 

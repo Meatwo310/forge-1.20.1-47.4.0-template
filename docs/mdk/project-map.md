@@ -161,6 +161,8 @@ This file maps repository locations to responsibilities.
 
 - Defines loader identity, Java version, publishing dependencies, and
   the Gradle tasks that produce each platform's main and optional sources jars.
+- Provides the `platformArtifacts { publishingDependencies { ... } }` DSL for
+  CurseForge and Modrinth project-page relations.
 - Reads the archive base name from the platform's Gradle `base` configuration.
 - Resolves exact archive file names for CI, release collection, and downstream
   publishing logic.
