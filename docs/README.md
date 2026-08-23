@@ -276,6 +276,22 @@ These conventions wire the `config` and `configClient` outputs into the jar and 
 
 Fabric 1.18.2-1.19.2 uses the archived `net.minecraftforge:forgeconfigapiport-fabric` artifact, which has no separate common artifact. Keep `VersionedConfigSpec` and other Forge Config API Port bindings in the Fabric project's `src/config`; `fabric-legacy-config-conventions` consumes the neutral declarations from root `common` and treats `<minecraft>/common/src/config` as optional. Do not apply it together with `fabric-config-conventions`.
 
+The config spec family is selected by Minecraft version, not by the loader that
+ultimately registers it:
+
+| Minecraft | Config-enabled platforms | Config spec family |
+|-----------|--------------------------|--------------------|
+| 1.18.2-1.19.2 | Fabric, LexForge Legacy | LexForge-style `ForgeConfigSpec` |
+| 1.20.1 | Fabric, LexForge Legacy | LexForge-style `ForgeConfigSpec` |
+| 1.21.1 | Fabric, LexForge, NeoForge | NeoForge-style `ModConfigSpec` |
+| 1.21.8-1.21.11 | Fabric, LexForge | NeoForge-style `ModConfigSpec` |
+| 26.x | Fabric, NeoForge | NeoForge-style `ModConfigSpec` |
+
+The standalone 1.7.10 Forge project does not use this shared config
+abstraction. On Fabric and modern LexForge, Forge Config API Port adapts the
+selected spec family to the target loader; it does not change which family
+`VersionedConfigSpec` builds.
+
 The builder supports primitive values, ranged numbers, strings, lists, enums,
 and nested sections. Consecutive `comment(...)` calls are joined with newlines
 and applied to the next entry or category. Use `translation(...)` to assign an

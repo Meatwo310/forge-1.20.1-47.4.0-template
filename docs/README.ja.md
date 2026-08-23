@@ -249,6 +249,18 @@ Fabricは`configClient`を作成して`client`へ接続します。クライア�
 
 Fabric 1.18.2～1.19.2では、独立したcommonアーティファクトを持たない、アーカイブ済みの`net.minecraftforge:forgeconfigapiport-fabric`アーティファクトを使用します。`VersionedConfigSpec`やその他のForge Config API Port連携は、Fabricプロジェクトの`src/config`に置いてください。`fabric-legacy-config-conventions`はルート`common`の中立な宣言を使用し、`<minecraft>/common/src/config`を任意として扱います。`fabric-config-conventions`と同時に適用しないでください。
 
+設定specの方式は、最終的に登録するローダーではなく、Minecraftバージョンによって決まります。
+
+| Minecraft | 設定を使用するプラットフォーム | 設定specの方式 |
+|-----------|--------------------------------|----------------|
+| 1.18.2～1.19.2 | Fabric、LexForge Legacy | LexForge式の`ForgeConfigSpec` |
+| 1.20.1 | Fabric、LexForge Legacy | LexForge式の`ForgeConfigSpec` |
+| 1.21.1 | Fabric、LexForge、NeoForge | NeoForge式の`ModConfigSpec` |
+| 1.21.8～1.21.11 | Fabric、LexForge | NeoForge式の`ModConfigSpec` |
+| 26.x | Fabric、NeoForge | NeoForge式の`ModConfigSpec` |
+
+単独の1.7.10 Forgeプロジェクトは、この共有設定抽象化を使用しません。FabricとモダンなLexForgeでは、Forge Config API Portが選択済みのspec方式を対象ローダーへ適合させますが、`VersionedConfigSpec`が生成する方式自体は変更しません。
+
 ビルダーは、プリミティブ値、範囲付き数値、文字列、リスト、enum、ネストしたセクションをサポートします。連続した`comment(...)`呼び出しは改行で結合され、次のエントリーまたはカテゴリーに適用されます。カテゴリーパスに関係なく、次のエントリーまたはカテゴリーへ正確な翻訳キーを割り当てるには`translation(...)`を使用します。すべてのプラットフォームでエントリーに`worldRestart()`を、NeoForgeでは`gameRestart()`を指定できます。Forge Config APIを使うプラットフォームでは`gameRestart()`が無視されます。階層的な設定には、`category(...)`とネストしたクラスを推奨します。`push(...)`、`pop()`、`pop(int count)`は、低レベルのアダプター処理や特殊な移行処理に使用してください。
 
 ```java
