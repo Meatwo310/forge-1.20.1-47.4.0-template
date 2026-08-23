@@ -489,6 +489,41 @@ modPublishing {
 4. Create a GitHub Release with the `Release` workflow before running
    `Publish` for its tag.
 
+The root block provides defaults for every platform publication. When a loader
+or Minecraft version needs different publication metadata, configure
+`platformPublishing` in that platform project's `build.gradle.kts`:
+
+```kotlin
+import me.modmuss50.mpp.ReleaseType.BETA
+import me.modmuss50.mpp.platforms.modrinth.ModrinthEnvironment.CLIENT_ONLY
+import net.meatwo310.mdk.build.platformPublishing
+
+platformPublishing {
+    displayName.set("Example Mod 1.21.1 Fabric (Client)")
+    releaseType.set(BETA)
+
+    curseForge {
+        projectId.set("654321")
+        projectSlug.set("examplemod-client")
+        client.set(true)
+        server.set(false)
+    }
+    modrinth {
+        projectId.set("examplemod-client")
+        environment.set(CLIENT_ONLY)
+        featured.set(false)
+    }
+}
+```
+
+Every property in `platformPublishing` is optional. Values that are present
+override the root or workflow value only for that platform; omitted values keep
+the shared default. The supported overrides are `displayName`, `releaseType`,
+CurseForge's `projectId`, `projectSlug`, `client`, and `server`, and Modrinth's
+`projectId`, `environment`, and `featured`. Artifact files, versions, Minecraft
+versions, loaders, and Java versions cannot be overridden here because they are
+derived from the artifact being published.
+
 To run the Publish workflow:
 
 1. Open **Actions** > **Publish** > **Run workflow** on GitHub.
@@ -499,10 +534,11 @@ To run the Publish workflow:
 
 Artifact names, Minecraft versions, loader names, Java versions, optional
 sources jars, and convention-provided publishing dependencies are derived from
-each project's `platformArtifacts` metadata. `fabric-api-conventions` registers
-Fabric API, while the Fabric and modern LexForge config conventions register
-Forge Config API Port. A project-specific convention or build script can add
-another required dependency without editing the publish workflow:
+each project's `platformArtifacts` metadata. Platform publishing overrides are
+applied after the shared `modPublishing` defaults. `fabric-api-conventions`
+registers Fabric API, while the Fabric and modern LexForge config conventions
+register Forge Config API Port. A project-specific convention or build script
+can add another required dependency without editing the publish workflow:
 
 ```kotlin
 import net.meatwo310.mdk.build.PublishedDependencyType.OPTIONAL

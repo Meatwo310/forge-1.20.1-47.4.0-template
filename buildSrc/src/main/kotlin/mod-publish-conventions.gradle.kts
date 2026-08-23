@@ -5,9 +5,11 @@ import me.modmuss50.mpp.platforms.curseforge.CurseforgeOptions
 import me.modmuss50.mpp.platforms.modrinth.ModrinthOptions
 import net.meatwo310.mdk.build.DownloadGitHubRelease
 import net.meatwo310.mdk.build.ModPublishingExtension
+import net.meatwo310.mdk.build.PlatformPublishingOverrides
 import net.meatwo310.mdk.build.PublishedDependency
 import net.meatwo310.mdk.build.PublishedDependencyType
 import net.meatwo310.mdk.build.platformArtifacts
+import net.meatwo310.mdk.build.platformPublishingOverrides
 
 plugins {
     id("me.modmuss50.mod-publish-plugin")
@@ -32,6 +34,7 @@ data class PublishTarget(
     val sourcesArtifactName: String?,
     val curseForgeDependencies: Set<PublishedDependency>,
     val modrinthDependencies: Set<PublishedDependency>,
+    val publishing: PlatformPublishingOverrides,
 )
 
 fun CurseforgeOptions.addDependencies(dependencies: Set<PublishedDependency>) {
@@ -103,7 +106,8 @@ gradle.projectsEvaluated {
     val allPublishTargets = (gradle.extensions.extraProperties["ciBuildProjectNames"] as List<*>)
         .map { it.toString() }
         .map { projectName ->
-            val artifacts = project(":$projectName").platformArtifacts()
+            val targetProject = project(":$projectName")
+            val artifacts = targetProject.platformArtifacts()
             PublishTarget(
                 projectName = projectName,
                 minecraftVersion = artifacts.minecraftVersion,
@@ -113,6 +117,7 @@ gradle.projectsEvaluated {
                 sourcesArtifactName = artifacts.sourcesArtifactName,
                 curseForgeDependencies = artifacts.curseForgeDependencies,
                 modrinthDependencies = artifacts.modrinthDependencies,
+                publishing = targetProject.platformPublishingOverrides(),
             )
         }
     val requestedPublishProjects = providers.gradleProperty("publishProjects")
@@ -157,7 +162,7 @@ gradle.projectsEvaluated {
                 publishInputDirectory.map { it.file(artifactName) }
             }
             val releaseVersion = "${target.minecraftVersion}-${target.modLoader}-v$modVersion"
-            val displayName = "$modName $releaseVersion"
+            val displayName = target.publishing.displayName ?: "$modName $releaseVersion"
 
             if (selectedPublishDestination in setOf("both", "curseforge")) {
                 curseforge("curseforge$taskSuffix") {
@@ -166,6 +171,11 @@ gradle.projectsEvaluated {
                     file.set(mainFile)
                     version.set(releaseVersion)
                     this.displayName.set(displayName)
+                    target.publishing.releaseType?.let(type::set)
+                    target.publishing.curseForge.projectId?.let(projectId::set)
+                    target.publishing.curseForge.projectSlug?.let(projectSlug::set)
+                    target.publishing.curseForge.client?.let(client::set)
+                    target.publishing.curseForge.server?.let(server::set)
                     modLoaders.add(target.modLoader)
                     minecraftVersions.add(target.minecraftVersion)
                     javaVersions.add(JavaVersion.toVersion(target.javaVersion))
@@ -185,6 +195,10 @@ gradle.projectsEvaluated {
                     file.set(mainFile)
                     version.set(releaseVersion)
                     this.displayName.set(displayName)
+                    target.publishing.releaseType?.let(type::set)
+                    target.publishing.modrinth.projectId?.let(projectId::set)
+                    target.publishing.modrinth.environment?.let(environment::set)
+                    target.publishing.modrinth.featured?.let(featured::set)
                     modLoaders.add(target.modLoader)
                     minecraftVersions.add(target.minecraftVersion)
                     if (sourcesFile != null) {

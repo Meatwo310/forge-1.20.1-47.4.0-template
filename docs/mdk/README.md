@@ -100,7 +100,8 @@ projects, collect release jars under `build/release/libs`, generate notes with
 The manual `Publish` workflow consumes an existing GitHub Release and publishes
 its declared platform artifacts to CurseForge and/or Modrinth. Publication
 metadata comes from `platformArtifacts`; project IDs and supported environments
-remain explicit root Gradle properties.
+have explicit defaults in the root `modPublishing` block. Individual platform
+projects can override the supported subset through `platformPublishing`.
 
 ## Agent Rules
 

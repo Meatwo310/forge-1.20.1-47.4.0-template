@@ -165,10 +165,18 @@ This file maps repository locations to responsibilities.
 - Resolves exact archive file names for CI, release collection, and downstream
   publishing logic.
 
+`ModPublishing.kt`
+
+- Exposes Mod Publish Plugin's native CurseForge and Modrinth options through
+  the root `modPublishing` block.
+- Defines the restricted `platformPublishing` overrides for per-platform
+  project IDs, supported environments, display names, and release types.
+
 `mod-publish-conventions.gradle.kts`
 
 - Configures CurseForge and Modrinth publications from `platformArtifacts`.
-- Exposes Mod Publish Plugin's native CurseForge and Modrinth options through the `modPublishing` block.
+- Applies each platform project's `platformPublishing` values after the shared
+  `modPublishing` defaults.
 - Downloads the selected GitHub Release instead of rebuilding its jars.
 - Supports destination, platform subset, release type, and dry-run inputs.
 

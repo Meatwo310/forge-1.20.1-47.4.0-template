@@ -64,6 +64,7 @@ fun Project.configurePlatformArtifacts(
         curseForgeDependencies.convention(emptySet())
         modrinthDependencies.convention(emptySet())
     }
+    configurePlatformPublishing()
 
     return metadata
 }
