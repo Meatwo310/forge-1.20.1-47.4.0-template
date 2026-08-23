@@ -13,6 +13,10 @@ Follow the instructions in those documents and keep them consistent with any
 related implementation changes. When instructions conflict, follow the most
 specific document for the files being changed.
 
+When editing the user-facing `README.md`, update `README.ja.md` in the same
+change so that the English and Japanese guides remain equivalent. Keep this
+agent documentation and the files under `mdk/` in English only.
+
 The `docs/` directory is maintained by the upstream `Meatwo310/custom-mdk`
 template. Downstream projects should avoid editing files in this directory,
 because those changes can conflict when updates from the template are merged.

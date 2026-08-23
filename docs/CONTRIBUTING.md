@@ -24,6 +24,15 @@ are produced by DataGen rather than edited directly.
 If you installed `editorconfig-checker` by another method, run the same command
 directly without `nix develop`.
 
+## Documentation Languages
+
+`README.md` and `README.ja.md` are the English and Japanese versions of the
+same user-facing guide. Any change to `README.md` must include the corresponding
+change to `README.ja.md` in the same pull request.
+
+Agent-specific documentation remains English-only. Do not create translated
+copies of `AGENTS.md` or files under `mdk/`.
+
 ## Commit Message Convention
 
 Commits should follow [Conventional Commits](https://www.conventionalcommits.org/):
