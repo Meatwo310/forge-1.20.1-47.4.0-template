@@ -4,12 +4,11 @@ import me.modmuss50.mpp.ReleaseType
 import me.modmuss50.mpp.platforms.curseforge.CurseforgeOptions
 import me.modmuss50.mpp.platforms.modrinth.ModrinthOptions
 import net.meatwo310.mdk.build.DownloadGitHubRelease
-import net.meatwo310.mdk.build.ModPublishingExtension
-import net.meatwo310.mdk.build.PlatformPublishingOverrides
+import net.meatwo310.mdk.build.PublishingOptionsFacade
 import net.meatwo310.mdk.build.PublishedDependency
 import net.meatwo310.mdk.build.PublishedDependencyType
 import net.meatwo310.mdk.build.platformArtifacts
-import net.meatwo310.mdk.build.platformPublishingOverrides
+import net.meatwo310.mdk.build.platformPublishingFacade
 
 plugins {
     id("me.modmuss50.mod-publish-plugin")
@@ -18,9 +17,10 @@ plugins {
 val modPublish = extensions.getByType<ModPublishExtension>()
 val curseForgeOptions = modPublish.curseforgeOptions {}.get()
 val modrinthOptions = modPublish.modrinthOptions {}.get()
-extensions.create(
+val modPublishing = extensions.create(
     "modPublishing",
-    ModPublishingExtension::class.java,
+    PublishingOptionsFacade::class.java,
+    modPublish,
     curseForgeOptions,
     modrinthOptions,
 )
@@ -34,7 +34,7 @@ data class PublishTarget(
     val sourcesArtifactName: String?,
     val curseForgeDependencies: Set<PublishedDependency>,
     val modrinthDependencies: Set<PublishedDependency>,
-    val publishing: PlatformPublishingOverrides,
+    val publishing: PublishingOptionsFacade,
 )
 
 fun CurseforgeOptions.addDependencies(dependencies: Set<PublishedDependency>) {
@@ -79,6 +79,7 @@ val publishDryRun = providers.gradleProperty("publishDryRun")
 val publishReleaseType = providers.gradleProperty("publishReleaseType")
     .orElse("stable")
     .map { ReleaseType.valueOf(it.uppercase()) }
+modPublishing.releaseType.convention(publishReleaseType)
 val publishRepository = providers.gradleProperty("publishGitHubRepository")
 val githubToken = providers.environmentVariable("GITHUB_TOKEN")
     .orElse(providers.environmentVariable("GH_TOKEN"))
@@ -117,7 +118,7 @@ gradle.projectsEvaluated {
                 sourcesArtifactName = artifacts.sourcesArtifactName,
                 curseForgeDependencies = artifacts.curseForgeDependencies,
                 modrinthDependencies = artifacts.modrinthDependencies,
-                publishing = targetProject.platformPublishingOverrides(),
+                publishing = targetProject.platformPublishingFacade(),
             )
         }
     val requestedPublishProjects = providers.gradleProperty("publishProjects")
@@ -153,7 +154,6 @@ gradle.projectsEvaluated {
     publishMods {
         dryRun.set(publishDryRun)
         changelog.set(providers.fileContents(publishChangelogFile).asText)
-        type.set(publishReleaseType)
 
         for (target in publishTargets) {
             val taskSuffix = target.projectName.toPublishTaskSuffix()
@@ -162,7 +162,7 @@ gradle.projectsEvaluated {
                 publishInputDirectory.map { it.file(artifactName) }
             }
             val releaseVersion = "${target.minecraftVersion}-${target.modLoader}-v$modVersion"
-            val displayName = target.publishing.displayName ?: "$modName $releaseVersion"
+            val generatedDisplayName = providers.provider { "$modName $releaseVersion" }
 
             if (selectedPublishDestination in setOf("both", "curseforge")) {
                 curseforge("curseforge$taskSuffix") {
@@ -170,12 +170,7 @@ gradle.projectsEvaluated {
                     accessToken.set(providers.environmentVariable("CURSEFORGE_TOKEN"))
                     file.set(mainFile)
                     version.set(releaseVersion)
-                    this.displayName.set(displayName)
-                    target.publishing.releaseType?.let(type::set)
-                    target.publishing.curseForge.projectId?.let(projectId::set)
-                    target.publishing.curseForge.projectSlug?.let(projectSlug::set)
-                    target.publishing.curseForge.client?.let(client::set)
-                    target.publishing.curseForge.server?.let(server::set)
+                    target.publishing.applyTo(this, generatedDisplayName)
                     modLoaders.add(target.modLoader)
                     minecraftVersions.add(target.minecraftVersion)
                     javaVersions.add(JavaVersion.toVersion(target.javaVersion))
@@ -194,11 +189,7 @@ gradle.projectsEvaluated {
                     accessToken.set(providers.environmentVariable("MODRINTH_TOKEN"))
                     file.set(mainFile)
                     version.set(releaseVersion)
-                    this.displayName.set(displayName)
-                    target.publishing.releaseType?.let(type::set)
-                    target.publishing.modrinth.projectId?.let(projectId::set)
-                    target.publishing.modrinth.environment?.let(environment::set)
-                    target.publishing.modrinth.featured?.let(featured::set)
+                    target.publishing.applyTo(this, generatedDisplayName)
                     modLoaders.add(target.modLoader)
                     minecraftVersions.add(target.minecraftVersion)
                     if (sourcesFile != null) {

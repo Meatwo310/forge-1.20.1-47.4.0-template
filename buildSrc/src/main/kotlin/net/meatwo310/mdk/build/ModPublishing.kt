@@ -1,5 +1,7 @@
 package net.meatwo310.mdk.build
 
+import me.modmuss50.mpp.ModPublishExtension
+import me.modmuss50.mpp.PublishOptions
 import me.modmuss50.mpp.ReleaseType
 import me.modmuss50.mpp.platforms.curseforge.CurseforgeOptions
 import me.modmuss50.mpp.platforms.modrinth.ModrinthEnvironment
@@ -7,113 +9,144 @@ import me.modmuss50.mpp.platforms.modrinth.ModrinthOptions
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
-import javax.inject.Inject
+import org.gradle.api.provider.Provider
 
 /**
- * Configures repository-specific metadata using Mod Publish Plugin's native platform options.
+ * Restricts a publishing DSL to metadata that callers may configure safely.
  *
- * Execution inputs such as the release tag, selected projects, destination, and dry-run mode intentionally remain
- * Gradle properties so that each workflow invocation can choose them independently.
+ * Each exposed property is the corresponding property from Mod Publishing Plugin's native options. The native options
+ * themselves remain private so callers cannot configure tokens, files, API endpoints, artifact identity, or other
+ * values owned by the publishing convention.
  */
-open class ModPublishingExtension(
+open class PublishingOptionsFacade(
+    private val publishOptions: PublishOptions,
     private val curseForgeOptions: CurseforgeOptions,
     private val modrinthOptions: ModrinthOptions,
 ) {
-    /** Configures native CurseForge options shared by every platform upload. */
-    fun curseForge(action: Action<CurseforgeOptions>) = action.execute(curseForgeOptions)
+    val displayName: Property<String>
+        get() = publishOptions.displayName
+    val releaseType: Property<ReleaseType>
+        get() = publishOptions.type
 
-    /** Configures native Modrinth options shared by every platform upload. */
-    fun modrinth(action: Action<ModrinthOptions>) = action.execute(modrinthOptions)
+    val curseForge = CurseForgePublishingFacade(curseForgeOptions)
+    val modrinth = ModrinthPublishingFacade(modrinthOptions)
+
+    fun curseForge(action: Action<CurseForgePublishingFacade>) = action.execute(curseForge)
+
+    fun modrinth(action: Action<ModrinthPublishingFacade>) = action.execute(modrinth)
+
+    internal fun inheritFrom(defaults: PublishingOptionsFacade) {
+        displayName.convention(defaults.displayName)
+        releaseType.convention(defaults.releaseType)
+        curseForge.inheritFrom(defaults.curseForge)
+        modrinth.inheritFrom(defaults.modrinth)
+    }
+
+    internal fun applyTo(options: CurseforgeOptions, generatedDisplayName: Provider<String>) {
+        options.displayName.set(displayName.orElse(generatedDisplayName))
+        if (releaseType.isPresent) options.type.set(releaseType)
+        curseForge.applyTo(options)
+    }
+
+    internal fun applyTo(options: ModrinthOptions, generatedDisplayName: Provider<String>) {
+        options.displayName.set(displayName.orElse(generatedDisplayName))
+        if (releaseType.isPresent) options.type.set(releaseType)
+        modrinth.applyTo(options)
+    }
 }
 
-/** CurseForge settings that a single platform publication may override. */
-abstract class CurseForgePublishingOverrides {
-    abstract val projectId: Property<String>
-    abstract val projectSlug: Property<String>
-    abstract val client: Property<Boolean>
-    abstract val server: Property<Boolean>
+open class CurseForgePublishingFacade internal constructor(
+    private val options: CurseforgeOptions,
+) {
+    val projectId: Property<String>
+        get() = options.projectId
+    val projectSlug: Property<String>
+        get() = options.projectSlug
+    val client: Property<Boolean>
+        get() = options.client
+    val server: Property<Boolean>
+        get() = options.server
+
+    internal fun inheritFrom(defaults: CurseForgePublishingFacade) {
+        projectId.convention(defaults.projectId)
+        projectSlug.convention(defaults.projectSlug)
+        client.convention(defaults.client)
+        server.convention(defaults.server)
+    }
+
+    internal fun applyTo(target: CurseforgeOptions) {
+        if (projectId.isPresent) target.projectId.set(projectId)
+        if (projectSlug.isPresent) target.projectSlug.set(projectSlug)
+        if (client.isPresent) target.client.set(client)
+        if (server.isPresent) target.server.set(server)
+    }
 }
 
-/** Modrinth settings that a single platform publication may override. */
-abstract class ModrinthPublishingOverrides {
-    abstract val projectId: Property<String>
-    abstract val environment: Property<ModrinthEnvironment>
-    abstract val featured: Property<Boolean>
+open class ModrinthPublishingFacade internal constructor(
+    private val options: ModrinthOptions,
+) {
+    val CLIENT_ONLY: ModrinthEnvironment
+        get() = options.CLIENT_ONLY
+    val SERVER_ONLY: ModrinthEnvironment
+        get() = options.SERVER_ONLY
+    val DEDICATED_SERVER_ONLY: ModrinthEnvironment
+        get() = options.DEDICATED_SERVER_ONLY
+    val CLIENT_AND_SERVER: ModrinthEnvironment
+        get() = options.CLIENT_AND_SERVER
+    val SERVER_ONLY_CLIENT_OPTIONAL: ModrinthEnvironment
+        get() = options.SERVER_ONLY_CLIENT_OPTIONAL
+    val CLIENT_ONLY_SERVER_OPTIONAL: ModrinthEnvironment
+        get() = options.CLIENT_ONLY_SERVER_OPTIONAL
+    val CLIENT_OR_SERVER_PREFERS_BOTH: ModrinthEnvironment
+        get() = options.CLIENT_OR_SERVER_PREFERS_BOTH
+    val CLIENT_OR_SERVER: ModrinthEnvironment
+        get() = options.CLIENT_OR_SERVER
+    val SINGLEPLAYER_ONLY: ModrinthEnvironment
+        get() = options.SINGLEPLAYER_ONLY
+
+    val projectId: Property<String>
+        get() = options.projectId
+    val environment: Property<ModrinthEnvironment>
+        get() = options.environment
+    val featured: Property<Boolean>
+        get() = options.featured
+
+    internal fun inheritFrom(defaults: ModrinthPublishingFacade) {
+        projectId.convention(defaults.projectId)
+        environment.convention(defaults.environment)
+        featured.convention(defaults.featured)
+    }
+
+    internal fun applyTo(target: ModrinthOptions) {
+        if (projectId.isPresent) target.projectId.set(projectId)
+        if (environment.isPresent) target.environment.set(environment)
+        if (featured.isPresent) target.featured.set(featured)
+    }
 }
-
-/**
- * Overrides publishing metadata for one platform project.
- *
- * Artifact identity such as the Minecraft version, mod loader, Java version, and jar files intentionally remains in
- * [PlatformArtifactsExtension] so that publishing metadata cannot disagree with the artifact being uploaded.
- */
-open class PlatformPublishingExtension @Inject constructor(objects: ObjectFactory) {
-    val curseForge: CurseForgePublishingOverrides = objects.newInstance(CurseForgePublishingOverrides::class.java)
-    val modrinth: ModrinthPublishingOverrides = objects.newInstance(ModrinthPublishingOverrides::class.java)
-
-    val displayName: Property<String> = objects.property(String::class.java)
-    val releaseType: Property<ReleaseType> = objects.property(ReleaseType::class.java)
-
-    fun curseForge(action: Action<CurseForgePublishingOverrides>) = action.execute(curseForge)
-
-    fun modrinth(action: Action<ModrinthPublishingOverrides>) = action.execute(modrinth)
-}
-
-data class CurseForgePublishingOverrideValues(
-    val projectId: String?,
-    val projectSlug: String?,
-    val client: Boolean?,
-    val server: Boolean?,
-)
-
-data class ModrinthPublishingOverrideValues(
-    val projectId: String?,
-    val environment: ModrinthEnvironment?,
-    val featured: Boolean?,
-)
-
-data class PlatformPublishingOverrides(
-    val displayName: String?,
-    val releaseType: ReleaseType?,
-    val curseForge: CurseForgePublishingOverrideValues,
-    val modrinth: ModrinthPublishingOverrideValues,
-)
 
 /** Configures publishing overrides for this platform project. */
-fun Project.platformPublishing(action: Action<PlatformPublishingExtension>) =
+fun Project.platformPublishing(action: Action<PublishingOptionsFacade>) =
     action.execute(configurePlatformPublishing())
 
-internal fun Project.configurePlatformPublishing(): PlatformPublishingExtension =
-    extensions.findByType(PlatformPublishingExtension::class.java)
-        ?: extensions.create("platformPublishing", PlatformPublishingExtension::class.java)
+internal fun Project.configurePlatformPublishing(): PublishingOptionsFacade {
+    extensions.findByName("platformPublishing")?.let { return it as PublishingOptionsFacade }
 
-internal fun Project.platformPublishingOverrides(): PlatformPublishingOverrides {
-    val publishing = extensions.findByType(PlatformPublishingExtension::class.java)
-        ?: throw GradleException("Project '$name' must configure platformArtifacts before platformPublishing")
-    val displayName = publishing.displayName.orNull?.validatedPublishingText("displayName")
-    val curseForgeProjectId = publishing.curseForge.projectId.orNull?.validatedPublishingText("CurseForge projectId")
-    val curseForgeProjectSlug =
-        publishing.curseForge.projectSlug.orNull?.validatedPublishingText("CurseForge projectSlug")
-    val modrinthProjectId = publishing.modrinth.projectId.orNull?.validatedPublishingText("Modrinth projectId")
-
-    return PlatformPublishingOverrides(
-        displayName = displayName,
-        releaseType = publishing.releaseType.orNull,
-        curseForge = CurseForgePublishingOverrideValues(
-            projectId = curseForgeProjectId,
-            projectSlug = curseForgeProjectSlug,
-            client = publishing.curseForge.client.orNull,
-            server = publishing.curseForge.server.orNull,
-        ),
-        modrinth = ModrinthPublishingOverrideValues(
-            projectId = modrinthProjectId,
-            environment = publishing.modrinth.environment.orNull,
-            featured = publishing.modrinth.featured.orNull,
-        ),
+    val modPublish = rootProject.extensions.findByType(ModPublishExtension::class.java)
+        ?: throw GradleException("The root project must apply mod-publish-conventions")
+    val defaults = rootProject.extensions.findByName("modPublishing") as? PublishingOptionsFacade
+        ?: throw GradleException("The root project must configure modPublishing")
+    val publishing = extensions.create(
+        "platformPublishing",
+        PublishingOptionsFacade::class.java,
+        modPublish.publishOptions {}.get(),
+        modPublish.curseforgeOptions {}.get(),
+        modPublish.modrinthOptions {}.get(),
     )
+    publishing.inheritFrom(defaults)
+    return publishing
 }
 
-private fun String.validatedPublishingText(name: String): String =
-    takeIf(String::isNotBlank) ?: throw GradleException("Publishing $name must not be blank")
+internal fun Project.platformPublishingFacade(): PublishingOptionsFacade =
+    extensions.findByName("platformPublishing") as? PublishingOptionsFacade
+        ?: throw GradleException("Project '$name' must configure platformArtifacts before platformPublishing")

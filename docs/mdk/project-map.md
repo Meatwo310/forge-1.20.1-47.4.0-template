@@ -167,10 +167,12 @@ This file maps repository locations to responsibilities.
 
 `ModPublishing.kt`
 
-- Exposes Mod Publish Plugin's native CurseForge and Modrinth options through
-  the root `modPublishing` block.
-- Defines the restricted `platformPublishing` overrides for per-platform
-  project IDs, supported environments, display names, and release types.
+- Wraps Mod Publish Plugin options in the restricted `modPublishing` and
+  `platformPublishing` facades without exposing the native options themselves.
+- Delegates the allowed Gradle properties directly and gives each platform an
+  independent options set whose conventions inherit the root defaults.
+- Limits configurable values to project IDs/slugs, supported environments,
+  featured status, display names, and release types.
 
 `mod-publish-conventions.gradle.kts`
 

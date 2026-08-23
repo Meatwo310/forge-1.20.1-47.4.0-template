@@ -476,6 +476,14 @@ modPublishing {
 }
 ```
 
+Both `modPublishing` and `platformPublishing` are restricted facades over Mod
+Publishing Plugin properties. They expose only `displayName`, `releaseType`,
+and the repository-specific properties shown below; upload tokens, files, API
+endpoints, changelogs, artifact metadata, and additional files remain owned by
+the build conventions. The facade properties delegate directly to the native
+Gradle properties, so regular `set(...)`, `convention(...)`, and Provider APIs
+remain available without exposing the complete native options objects.
+
 1. In the root `build.gradle.kts` `modPublishing` block, uncomment and fill the
    `projectId` for each destination service you plan to select.
 2. For each selected service, review CurseForge's `client` and `server` flags
@@ -522,7 +530,8 @@ the shared default. The supported overrides are `displayName`, `releaseType`,
 CurseForge's `projectId`, `projectSlug`, `client`, and `server`, and Modrinth's
 `projectId`, `environment`, and `featured`. Artifact files, versions, Minecraft
 versions, loaders, and Java versions cannot be overridden here because they are
-derived from the artifact being published.
+derived from the artifact being published. Each platform receives independent
+native options, so an override cannot affect another platform publication.
 
 To run the Publish workflow:
 

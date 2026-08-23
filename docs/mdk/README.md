@@ -101,7 +101,9 @@ The manual `Publish` workflow consumes an existing GitHub Release and publishes
 its declared platform artifacts to CurseForge and/or Modrinth. Publication
 metadata comes from `platformArtifacts`; project IDs and supported environments
 have explicit defaults in the root `modPublishing` block. Individual platform
-projects can override the supported subset through `platformPublishing`.
+projects can override the supported subset through `platformPublishing`. Both
+blocks are restricted facades that delegate the allowed Gradle properties while
+keeping tokens, files, endpoints, changelogs, and artifact identity internal.
 
 ## Agent Rules
 

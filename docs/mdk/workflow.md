@@ -146,7 +146,8 @@ must have:
 - `platformArtifacts` metadata naming the main jar task and, when generated,
   the sources jar task;
 - optional `platformPublishing` overrides when its publication differs from the
-  root `modPublishing` defaults;
+  root `modPublishing` facade defaults; these overrides are isolated to that
+  platform project;
 - optional runtime jars staged by `collectCiRuntimeMods`.
 
 Run `writeCiBuildMatrix` whenever those assumptions might have changed.
