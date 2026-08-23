@@ -359,7 +359,7 @@ if (ServerConfig.ENABLE_FEATURE.getAsBoolean()) {
 |------------|--------------------|----------|------------------------|
 | NeoForgeプラットフォーム | ローダーに含まれるNeoForge設定API | `ModContainer#registerConfig` | なし。設定画面はNeoForgeが直接提供します |
 | LexForge Legacyプラットフォーム | ローダーに含まれるForge設定API | `ModLoadingContext` / `FMLJavaModLoadingContext` | [Configured](https://www.curseforge.com/minecraft/mc-mods/configured)または[Forge Config Screens](https://modrinth.com/mod/forge-config-screens) |
-| LexForgeプラットフォーム | Forge Config API Port | Forge Config API Portレジストリー | [Configured](https://www.curseforge.com/minecraft/mc-mods/configured)。Forge Config API Portに設定画面は同梱されません |
+| LexForgeプラットフォーム | Forge Config API Port | Forge Config API Portレジストリー | なし。Forge Config API Portに設定画面は同梱されず、NeoForge形式のspecはConfiguredでも認識されません |
 | Fabricプラットフォーム | Minecraftバージョンごとに宣言するForge Config API Port | Forge Config API Portレジストリー | Mod一覧の項目には[ModMenu](https://modrinth.com/mod/modmenu/)、mc1.20.1以前では[Forge Config Screens](https://modrinth.com/mod/forge-config-screens) |
 
 この仕組みにより、同じ`ConfigDeclaration`リストを`common`から共有し、バージョン固有のcommonプロジェクトで拡張したうえで、各プラットフォームが実際に使用する依存関係へ結び付けられます。
