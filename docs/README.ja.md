@@ -167,12 +167,7 @@ dependencies {
 | LexForge Legacy | `implementation(...)` | `modRuntimeOnly(...)` |
 | Fabric 26.1以降、LexForge、NeoForge | `implementation(...)` | `runtimeOnly(...)` |
 
-CIランタイムへの配置方法は、すべてのターゲットで共通です。
-
-| 用途 | 宣言 |
-|------|------|
-| GitHub Actionsのランタイムテストでjarをインストールする | `ciRuntimeMods(...)` |
-| コードからimportし、CIでもインストールする | 上表のコンパイル依存関係と`ciRuntimeMods(...)` |
+CIランタイムへの配置方法は、すべてのターゲットで共通です。GitHub Actionsのランタイムテストでjarをインストールする場合は、`ciRuntimeMods(...)`を使用します。コードからも依存先をimportする場合は、上表のコンパイル依存関係と併用してください。
 
 `ciRuntimeMods`はローカルの`runClient` / `runServer`クラスパスには影響しません。GitHub Actionsのランタイムテスト用に、直接指定されたjarファイルを各設定済みプロジェクトディレクトリの`build/ciRuntimeMods`へ配置するだけです。本番用ローダーメタデータも別に管理されます。リリースしたModの利用者が依存関係をインストールする必要がある場合に限り、Fabricの`depends`、LexForgeの`mods.toml`依存関係、またはNeoForgeの`neoforge.mods.toml`依存関係を追加してください。
 
@@ -289,7 +284,8 @@ public final class ServerConfig {
                     "allowedItems",
                     List.of("minecraft:stone"),
                     () -> "minecraft:stone",
-                    value -> value instanceof String);
+                    value -> value instanceof String
+            );
 
     public static final ConfigEntries ADVANCED = BUILDER
             .comment("Advanced server settings.")

@@ -177,12 +177,9 @@ Choose compile and local runtime configurations by target:
 | LexForge Legacy | `implementation(...)` | `modRuntimeOnly(...)` |
 | Fabric 26.1 and newer, LexForge, NeoForge | `implementation(...)` | `runtimeOnly(...)` |
 
-CI runtime staging is the same for every target:
-
-| Need | Declaration |
-|------|-------------|
-| GitHub Actions runtime test must install the jar | `ciRuntimeMods(...)` |
-| Code imports it and CI must install it | Compile dependency from the table above plus `ciRuntimeMods(...)` |
+CI runtime staging is the same for every target. Use `ciRuntimeMods(...)` when
+the GitHub Actions runtime test must install the jar. If the code also imports
+the dependency, combine it with the compile dependency from the table above.
 
 `ciRuntimeMods` does not affect local `runClient` / `runServer` classpaths. It only stages direct jar
 files into each configured project directory's `build/ciRuntimeMods` for the GitHub Actions runtime
@@ -328,7 +325,8 @@ public final class ServerConfig {
                     "allowedItems",
                     List.of("minecraft:stone"),
                     () -> "minecraft:stone",
-                    value -> value instanceof String);
+                    value -> value instanceof String
+            );
 
     public static final ConfigEntries ADVANCED = BUILDER
             .comment("Advanced server settings.")
