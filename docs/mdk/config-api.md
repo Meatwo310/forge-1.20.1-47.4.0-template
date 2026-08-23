@@ -155,6 +155,18 @@ than one declaration matches; do not swallow those exceptions.
 `VersionedConfigSpec` converts neutral declarations into the loader config spec
 available for that Minecraft version:
 
+| Minecraft | Config-enabled platforms | Config spec family |
+|-----------|--------------------------|--------------------|
+| 1.18.2-1.19.2 | Fabric, LexForge Legacy | LexForge-style `ForgeConfigSpec` |
+| 1.20.1 | Fabric, LexForge Legacy | LexForge-style `ForgeConfigSpec` |
+| 1.21.1 | Fabric, LexForge, NeoForge | NeoForge-style `ModConfigSpec` |
+| 1.21.8-1.21.11 | Fabric, LexForge | NeoForge-style `ModConfigSpec` |
+| 26.x | Fabric, NeoForge | NeoForge-style `ModConfigSpec` |
+
+The standalone 1.7.10 Forge project is outside this shared abstraction.
+Forge Config API Port adapts specs for Fabric and modern LexForge registration;
+it does not determine the spec family.
+
 - `VersionedConfigSpec.bind(ConfigDeclaration declaration)`
 - `VersionedConfigSpec.bindAll(List<ConfigDeclaration> declarations)`
 - `VersionedConfigSpec.bind(ConfigEntries entries)`
